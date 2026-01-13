@@ -7,14 +7,15 @@
   },
   "plugins": [
     {
-      "name": "baoyu-skills",
+      "name": "content-skills",
       "description": "Skills shared by Baoyu for improving daily work efficiency",
       "version": "0.1.0",
       "source": "./",
-      "author": {
-        "name": "Jim Liu (宝玉)",
-        "email": "junminliu@gmail.com"
-      }
+      "strict": false,
+      "skills": [
+        "./skills/gemini-web",
+        "./skills/xhs-images"
+      ]
     }
   ]
 }
