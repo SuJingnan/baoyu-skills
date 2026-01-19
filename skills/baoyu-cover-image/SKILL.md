@@ -14,9 +14,9 @@ Generate hand-drawn style cover images for articles with multiple style options.
 /baoyu-cover-image path/to/article.md
 
 # Specify a style
-/baoyu-cover-image path/to/article.md --style tech
+/baoyu-cover-image path/to/article.md --style blueprint
 /baoyu-cover-image path/to/article.md --style warm
-/baoyu-cover-image path/to/article.md --style bold
+/baoyu-cover-image path/to/article.md --style dark-atmospheric
 
 # Without title text
 /baoyu-cover-image path/to/article.md --no-title
@@ -47,13 +47,25 @@ Generate hand-drawn style cover images for articles with multiple style options.
 | Style | Description |
 |-------|-------------|
 | `elegant` (Default) | Refined, sophisticated, understated |
-| `tech` | Modern, clean, futuristic |
-| `warm` | Friendly, approachable, human-centered |
+| `blueprint` | Technical schematics, engineering precision |
 | `bold` | High contrast, attention-grabbing, energetic |
+| `bold-editorial` | Magazine cover impact, dramatic typography |
+| `chalkboard` | Black chalkboard, colorful chalk drawings |
+| `dark-atmospheric` | Cinematic dark mode, glowing accents |
+| `editorial-infographic` | Magazine explainer, visual storytelling |
+| `fantasy-animation` | Ghibli/Disney inspired, whimsical charm |
+| `intuition-machine` | Technical briefing, bilingual labels |
 | `minimal` | Ultra-clean, zen-like, focused |
-| `playful` | Fun, creative, whimsical |
 | `nature` | Organic, calm, earthy |
-| `retro` | Vintage, nostalgic, classic |
+| `notion` | Clean SaaS dashboard, productivity styling |
+| `pixel-art` | Retro 8-bit, nostalgic gaming aesthetic |
+| `playful` | Fun, creative, whimsical |
+| `retro` | Halftone dots, vintage badges, classic |
+| `sketch-notes` | Hand-drawn, educational, warm |
+| `vector-illustration` | Flat vector, black outlines, retro colors |
+| `vintage` | Aged paper, historical, expedition style |
+| `warm` | Friendly, approachable, human-centered |
+| `watercolor` | Soft hand-painted, natural warmth |
 
 Detailed style definitions: `references/styles/<style>.md`
 
@@ -63,13 +75,25 @@ When no `--style` is specified, the system analyzes content to select the best s
 
 | Content Signals | Selected Style |
 |----------------|----------------|
-| AI, coding, tech, digital, algorithm | `tech` |
+| Architecture, system design, engineering | `blueprint` |
+| Product launch, keynote, marketing, brand | `bold-editorial` |
+| Education, classroom, tutorial, teaching | `chalkboard` |
+| Entertainment, creative, premium, cinematic | `dark-atmospheric` |
+| Technology explainer, science, research | `editorial-infographic` |
+| Storytelling, children, fantasy, magical | `fantasy-animation` |
+| Technical docs, academic, bilingual | `intuition-machine` |
 | Personal story, emotion, growth, life | `warm` |
 | Controversial, urgent, must-read, warning | `bold` |
 | Simple, zen, focus, essential | `minimal` |
-| Fun, easy, beginner, casual, tutorial | `playful` |
+| Fun, easy, beginner, casual | `playful` |
 | Nature, eco, wellness, health, organic | `nature` |
-| History, classic, vintage, old, traditional | `retro` |
+| Pop culture, 80s/90s nostalgia, badges | `retro` |
+| Product, SaaS, dashboard, productivity | `notion` |
+| Gaming, retro tech, developer, 8-bit | `pixel-art` |
+| Educational, tutorial, knowledge sharing | `sketch-notes` |
+| Creative proposals, brand, toy-like | `vector-illustration` |
+| History, exploration, heritage, biography | `vintage` |
+| Lifestyle, travel, food, personal | `watercolor` |
 | Business, professional, strategy, analysis | `elegant` |
 
 ## File Management

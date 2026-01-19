@@ -2,6 +2,18 @@
 
 [English](./CHANGELOG.md) | 中文
 
+## 1.4.0 - 2026-01-18
+
+### 新功能
+- `baoyu-cover-image`：风格库从 8 个扩展至 19 个，新增 12 种风格——`blueprint`（蓝图）、`bold-editorial`（大胆编辑）、`chalkboard`（黑板）、`dark-atmospheric`（暗黑氛围）、`editorial-infographic`（杂志信息图）、`fantasy-animation`（奇幻动画）、`intuition-machine`（技术简报）、`notion`（Notion 风格）、`pixel-art`（像素艺术）、`sketch-notes`（手绘笔记）、`vector-illustration`（矢量插画）、`vintage`（复古文献）、`watercolor`（水彩）。
+- `baoyu-slide-deck`：新增 `chalkboard`（黑板）风格——黑色黑板背景配彩色粉笔绘画，适合教育和教程内容。
+
+### 破坏性变更
+- `baoyu-cover-image`：移除 `tech` 风格（技术内容改用 `blueprint` 或 `editorial-infographic` 风格）。
+
+### 文档
+- `README.md`、`README.zh.md`：更新 cover-image 和 slide-deck 风格预览截图。
+
 ## 1.3.0 - 2026-01-18
 
 ### 新功能

@@ -2,6 +2,18 @@
 
 English | [中文](./CHANGELOG.zh.md)
 
+## 1.4.0 - 2026-01-18
+
+### Features
+- `baoyu-cover-image`: expands style library from 8 to 19 styles with 12 new additions—`blueprint`, `bold-editorial`, `chalkboard`, `dark-atmospheric`, `editorial-infographic`, `fantasy-animation`, `intuition-machine`, `notion`, `pixel-art`, `sketch-notes`, `vector-illustration`, `vintage`, `watercolor`.
+- `baoyu-slide-deck`: adds `chalkboard` style—black chalkboard background with colorful chalk drawings for education and tutorials.
+
+### Breaking Changes
+- `baoyu-cover-image`: removes `tech` style (use `blueprint` or `editorial-infographic` for technical content).
+
+### Documentation
+- `README.md`, `README.zh.md`: updates style preview screenshots for cover-image and slide-deck.
+
 ## 1.3.0 - 2026-01-18
 
 ### Features

@@ -127,7 +127,26 @@ Generate hand-drawn style cover images for articles with multiple style options.
 /baoyu-cover-image path/to/article.md --no-title
 ```
 
-Available styles: `elegant` (default), `tech`, `warm`, `bold`, `minimal`, `playful`, `nature`, `retro`
+Available styles: `elegant` (default), `blueprint`, `bold`, `bold-editorial`, `chalkboard`, `dark-atmospheric`, `editorial-infographic`, `fantasy-animation`, `intuition-machine`, `minimal`, `nature`, `notion`, `pixel-art`, `playful`, `retro`, `sketch-notes`, `vector-illustration`, `vintage`, `warm`, `watercolor`
+
+**Style Previews**:
+
+| | | |
+|:---:|:---:|:---:|
+| ![elegant](./screenshots/cover-image-styles/elegant.webp) | ![blueprint](./screenshots/cover-image-styles/blueprint.webp) | ![bold](./screenshots/cover-image-styles/bold.webp) |
+| elegant | blueprint | bold |
+| ![bold-editorial](./screenshots/cover-image-styles/bold-editorial.webp) | ![chalkboard](./screenshots/cover-image-styles/chalkboard.webp) | ![dark-atmospheric](./screenshots/cover-image-styles/dark-atmospheric.webp) |
+| bold-editorial | chalkboard | dark-atmospheric |
+| ![editorial-infographic](./screenshots/cover-image-styles/editorial-infographic.webp) | ![fantasy-animation](./screenshots/cover-image-styles/fantasy-animation.webp) | ![intuition-machine](./screenshots/cover-image-styles/intuition-machine.webp) |
+| editorial-infographic | fantasy-animation | intuition-machine |
+| ![minimal](./screenshots/cover-image-styles/minimal.webp) | ![nature](./screenshots/cover-image-styles/nature.webp) | ![notion](./screenshots/cover-image-styles/notion.webp) |
+| minimal | nature | notion |
+| ![pixel-art](./screenshots/cover-image-styles/pixel-art.webp) | ![playful](./screenshots/cover-image-styles/playful.webp) | ![retro](./screenshots/cover-image-styles/retro.webp) |
+| pixel-art | playful | retro |
+| ![sketch-notes](./screenshots/cover-image-styles/sketch-notes.webp) | ![vector-illustration](./screenshots/cover-image-styles/vector-illustration.webp) | ![vintage](./screenshots/cover-image-styles/vintage.webp) |
+| sketch-notes | vector-illustration | vintage |
+| ![warm](./screenshots/cover-image-styles/warm.webp) | ![watercolor](./screenshots/cover-image-styles/watercolor.webp) | |
+| warm | watercolor | |
 
 #### baoyu-slide-deck
 
@@ -172,16 +191,18 @@ Generate professional slide deck images from content. Creates comprehensive outl
 
 | | | |
 |:---:|:---:|:---:|
-| ![blueprint](./screenshots/slide-deck-styles/blueprint.webp) | ![bold-editorial](./screenshots/slide-deck-styles/bold-editorial.webp) | ![corporate](./screenshots/slide-deck-styles/corporate.webp) |
-| blueprint | bold-editorial | corporate |
-| ![dark-atmospheric](./screenshots/slide-deck-styles/dark-atmospheric.webp) | ![editorial-infographic](./screenshots/slide-deck-styles/editorial-infographic.webp) | ![fantasy-animation](./screenshots/slide-deck-styles/fantasy-animation.webp) |
-| dark-atmospheric | editorial-infographic | fantasy-animation |
-| ![intuition-machine](./screenshots/slide-deck-styles/intuition-machine.webp) | ![minimal](./screenshots/slide-deck-styles/minimal.webp) | ![notion](./screenshots/slide-deck-styles/notion.webp) |
-| intuition-machine | minimal | notion |
-| ![pixel-art](./screenshots/slide-deck-styles/pixel-art.webp) | ![scientific](./screenshots/slide-deck-styles/scientific.webp) | ![sketch-notes](./screenshots/slide-deck-styles/sketch-notes.webp) |
-| pixel-art | scientific | sketch-notes |
-| ![vector-illustration](./screenshots/slide-deck-styles/vector-illustration.webp) | ![vintage](./screenshots/slide-deck-styles/vintage.webp) | ![watercolor](./screenshots/slide-deck-styles/watercolor.webp) |
-| vector-illustration | vintage | watercolor |
+| ![blueprint](./screenshots/slide-deck-styles/blueprint.webp) | ![chalkboard](./screenshots/slide-deck-styles/chalkboard.webp) | ![bold-editorial](./screenshots/slide-deck-styles/bold-editorial.webp) |
+| blueprint | chalkboard | bold-editorial |
+| ![corporate](./screenshots/slide-deck-styles/corporate.webp) | ![dark-atmospheric](./screenshots/slide-deck-styles/dark-atmospheric.webp) | ![editorial-infographic](./screenshots/slide-deck-styles/editorial-infographic.webp) |
+| corporate | dark-atmospheric | editorial-infographic |
+| ![fantasy-animation](./screenshots/slide-deck-styles/fantasy-animation.webp) | ![intuition-machine](./screenshots/slide-deck-styles/intuition-machine.webp) | ![minimal](./screenshots/slide-deck-styles/minimal.webp) |
+| fantasy-animation | intuition-machine | minimal |
+| ![notion](./screenshots/slide-deck-styles/notion.webp) | ![pixel-art](./screenshots/slide-deck-styles/pixel-art.webp) | ![scientific](./screenshots/slide-deck-styles/scientific.webp) |
+| notion | pixel-art | scientific |
+| ![sketch-notes](./screenshots/slide-deck-styles/sketch-notes.webp) | ![vector-illustration](./screenshots/slide-deck-styles/vector-illustration.webp) | ![vintage](./screenshots/slide-deck-styles/vintage.webp) |
+| sketch-notes | vector-illustration | vintage |
+| ![watercolor](./screenshots/slide-deck-styles/watercolor.webp) | | |
+| watercolor | | |
 
 After generation, slides are automatically merged into a `.pptx` file for easy sharing.
 

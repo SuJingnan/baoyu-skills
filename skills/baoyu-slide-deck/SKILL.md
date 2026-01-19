@@ -49,6 +49,7 @@ Transform content into professional slide deck images with flexible style option
 | Style | Description | Best For |
 |-------|-------------|----------|
 | `blueprint` (Default) | Technical schematics, grid texture | Architecture, system design |
+| `chalkboard` | Black chalkboard, colorful chalk | Education, tutorials, classroom |
 | `notion` | SaaS dashboard, card-based layouts | Product demos, SaaS, B2B |
 | `bold-editorial` | Magazine cover, bold typography, dark | Product launches, keynotes |
 | `corporate` | Navy/gold, structured layouts | Investor decks, proposals |
@@ -69,6 +70,7 @@ Transform content into professional slide deck images with flexible style option
 | Content Signals | Selected Style |
 |-----------------|----------------|
 | tutorial, learn, education, guide, intro, beginner | `sketch-notes` |
+| classroom, teaching, school, chalkboard, blackboard | `chalkboard` |
 | architecture, system, data, analysis, technical | `blueprint` |
 | creative, children, kids, cute, illustration | `vector-illustration` |
 | briefing, academic, research, bilingual, infographic, concept | `intuition-machine` |
