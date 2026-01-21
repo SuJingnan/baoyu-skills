@@ -99,7 +99,18 @@ Xiaohongshu (RedNote) infographic series generator. Breaks down content into 1-1
 /baoyu-xhs-images 今日星座运势
 ```
 
-**Styles** (visual aesthetics): `cute` (default), `fresh`, `tech`, `warm`, `bold`, `minimal`, `retro`, `pop`, `notion`
+**Styles** (visual aesthetics): `cute` (default), `fresh`, `warm`, `bold`, `minimal`, `retro`, `pop`, `notion`, `chalkboard`
+
+**Style Previews**:
+
+| | | |
+|:---:|:---:|:---:|
+| ![cute](./screenshots/xhs-images-styles/cute.webp) | ![fresh](./screenshots/xhs-images-styles/fresh.webp) | ![warm](./screenshots/xhs-images-styles/warm.webp) |
+| cute | fresh | warm |
+| ![bold](./screenshots/xhs-images-styles/bold.webp) | ![minimal](./screenshots/xhs-images-styles/minimal.webp) | ![retro](./screenshots/xhs-images-styles/retro.webp) |
+| bold | minimal | retro |
+| ![pop](./screenshots/xhs-images-styles/pop.webp) | ![notion](./screenshots/xhs-images-styles/notion.webp) | ![chalkboard](./screenshots/xhs-images-styles/chalkboard.webp) |
+| pop | notion | chalkboard |
 
 **Layouts** (information density):
 | Layout | Density | Best for |
@@ -110,6 +121,15 @@ Xiaohongshu (RedNote) infographic series generator. Breaks down content into 1-1
 | `list` | 4-7 items | Checklists, rankings |
 | `comparison` | 2 sides | Before/after, pros/cons |
 | `flow` | 3-6 steps | Processes, timelines |
+
+**Layout Previews**:
+
+| | | |
+|:---:|:---:|:---:|
+| ![sparse](./screenshots/xhs-images-layouts/sparse.webp) | ![balanced](./screenshots/xhs-images-layouts/balanced.webp) | ![dense](./screenshots/xhs-images-layouts/dense.webp) |
+| sparse | balanced | dense |
+| ![list](./screenshots/xhs-images-layouts/list.webp) | ![comparison](./screenshots/xhs-images-layouts/comparison.webp) | ![flow](./screenshots/xhs-images-layouts/flow.webp) |
+| list | comparison | flow |
 
 #### baoyu-infographic
 

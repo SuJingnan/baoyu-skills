@@ -2,6 +2,21 @@
 
 [English](./CHANGELOG.md) | 中文
 
+## 1.9.0 - 2026-01-20
+
+### 新功能
+- `baoyu-xhs-images`：新增 `chalkboard`（黑板）风格——黑色黑板背景配彩色粉笔绘画，适合教育和教程内容。
+- `baoyu-comic`：新增 `chalkboard`（黑板）风格——黑色黑板上的教育粉笔画，适合教程、讲解和知识漫画。
+
+### 改进
+- `baoyu-article-illustrator`、`baoyu-cover-image`、`baoyu-infographic`：更新 `chalkboard` 风格，增强视觉指南。
+
+### 破坏性变更
+- `baoyu-xhs-images`：移除 `tech` 风格（技术内容改用 `minimal` 或 `notion` 风格）。
+
+### 文档
+- `README.md`、`README.zh.md`：新增 xhs-images 风格和布局预览图库（9 种风格、6 种布局）。
+
 ## 1.8.0 - 2026-01-20
 
 ### 新功能

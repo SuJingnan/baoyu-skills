@@ -42,7 +42,7 @@ Break down complex content into eye-catching infographic series for Xiaohongshu 
 
 | Dimension | Controls | Options |
 |-----------|----------|---------|
-| **Style** | Visual aesthetics: colors, lines, decorations | cute, fresh, tech, warm, bold, minimal, retro, pop, notion |
+| **Style** | Visual aesthetics: colors, lines, decorations | cute, fresh, warm, bold, minimal, retro, pop, notion, chalkboard |
 | **Layout** | Information structure: density, arrangement | sparse, balanced, dense, list, comparison, flow |
 
 Style × Layout can be freely combined. Example: `--style notion --layout dense` creates an intellectual-looking knowledge card with high information density.
@@ -53,13 +53,13 @@ Style × Layout can be freely combined. Example: `--style notion --layout dense`
 |-------|-------------|
 | `cute` (Default) | Sweet, adorable, girly - classic Xiaohongshu aesthetic |
 | `fresh` | Clean, refreshing, natural |
-| `tech` | Modern, smart, digital |
 | `warm` | Cozy, friendly, approachable |
 | `bold` | High impact, attention-grabbing |
 | `minimal` | Ultra-clean, sophisticated |
 | `retro` | Vintage, nostalgic, trendy |
 | `pop` | Vibrant, energetic, eye-catching |
 | `notion` | Minimalist hand-drawn line art, intellectual |
+| `chalkboard` | Colorful chalk on black board, educational |
 
 Detailed style definitions: `references/styles/<style>.md`
 
@@ -82,13 +82,13 @@ Detailed layout definitions: `references/layouts/<layout>.md`
 |-----------------|-------|--------|
 | Beauty, fashion, cute, girl, pink | `cute` | sparse/balanced |
 | Health, nature, clean, fresh, organic | `fresh` | balanced/flow |
-| Tech, AI, code, digital, app, tool | `tech` | dense/list |
 | Life, story, emotion, feeling, warm | `warm` | balanced |
 | Warning, important, must, critical | `bold` | list/comparison |
 | Professional, business, elegant, simple | `minimal` | sparse/balanced |
 | Classic, vintage, old, traditional | `retro` | balanced |
 | Fun, exciting, wow, amazing | `pop` | sparse/list |
 | Knowledge, concept, productivity, SaaS | `notion` | dense/list |
+| Education, tutorial, learning, teaching, classroom | `chalkboard` | balanced/dense |
 
 ## File Structure
 
@@ -285,13 +285,13 @@ Files:
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
 | cute | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓ | ✓ |
 | fresh | ✓✓ | ✓✓ | ✓ | ✓ | ✓ | ✓✓ |
-| tech | ✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ |
 | warm | ✓✓ | ✓✓ | ✓ | ✓ | ✓✓ | ✓ |
 | bold | ✓✓ | ✓ | ✓ | ✓✓ | ✓✓ | ✓ |
 | minimal | ✓✓ | ✓✓ | ✓✓ | ✓ | ✓ | ✓ |
 | retro | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓ | ✓ |
 | pop | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓✓ | ✓ |
 | notion | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ |
+| chalkboard | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓ | ✓✓ |
 
 ## References
 

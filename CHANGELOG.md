@@ -2,6 +2,21 @@
 
 English | [中文](./CHANGELOG.zh.md)
 
+## 1.9.0 - 2026-01-20
+
+### Features
+- `baoyu-xhs-images`: adds `chalkboard` style—black chalkboard background with colorful chalk drawings for education and tutorial content.
+- `baoyu-comic`: adds `chalkboard` style—educational chalk drawings on black chalkboard for tutorials, explainers, and knowledge comics.
+
+### Improvements
+- `baoyu-article-illustrator`, `baoyu-cover-image`, `baoyu-infographic`: updates `chalkboard` style with enhanced visual guidelines.
+
+### Breaking Changes
+- `baoyu-xhs-images`: removes `tech` style (use `minimal` or `notion` for technical content).
+
+### Documentation
+- `README.md`, `README.zh.md`: adds style and layout preview galleries for xhs-images (9 styles, 6 layouts).
+
 ## 1.8.0 - 2026-01-20
 
 ### Features
