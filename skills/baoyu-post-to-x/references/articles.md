@@ -67,7 +67,7 @@ Code blocks become blockquotes (X doesn't support code)
 
 1. **Cover Image**: First image or `cover_image` from frontmatter
 2. **Remote Images**: Automatically downloaded to temp directory
-3. **Placeholders**: Images in content use `[[IMAGE_PLACEHOLDER_N]]` format
+3. **Placeholders**: Images in content use `XIMGPH_N` format
 4. **Insertion**: Placeholders are found, selected, and replaced with actual images
 
 ## Markdown to HTML Script
@@ -92,7 +92,7 @@ JSON output:
   "coverImage": "/path/to/cover.jpg",
   "contentImages": [
     {
-      "placeholder": "[[IMAGE_PLACEHOLDER_1]]",
+      "placeholder": "XIMGPH_1",
       "localPath": "/tmp/x-article-images/img.png",
       "blockIndex": 5
     }

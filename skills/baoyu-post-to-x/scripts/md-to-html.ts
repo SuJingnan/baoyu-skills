@@ -280,7 +280,7 @@ export async function parseMarkdown(
   let imageCounter = 0;
 
   const { html, totalBlocks } = convertMarkdownToHtml(body, (src, alt) => {
-    const placeholder = `[[IMAGE_PLACEHOLDER_${++imageCounter}]]`;
+    const placeholder = `XIMGPH_${++imageCounter}`;
     const currentBlockIndex = images.length; // Will be set properly after HTML generation
 
     images.push({ src, alt, blockIndex: -1 }); // blockIndex set later
@@ -292,7 +292,7 @@ export async function parseMarkdown(
   let blockIdx = 0;
   for (const line of htmlLines) {
     for (let i = 0; i < images.length; i++) {
-      const placeholder = `[[IMAGE_PLACEHOLDER_${i + 1}]]`;
+      const placeholder = `XIMGPH_${i + 1}`;
       if (line.includes(placeholder)) {
         images[i]!.blockIndex = blockIdx;
       }
@@ -312,7 +312,7 @@ export async function parseMarkdown(
     // First image becomes cover if no cover specified
     if (isFirstImage && !coverImagePath) {
       coverImagePath = localPath;
-      coverPlaceholder = `[[IMAGE_PLACEHOLDER_${i + 1}]]`;
+      coverPlaceholder = `XIMGPH_${i + 1}`;
       isFirstImage = false;
       // Don't add to contentImages, it's the cover
       continue;
@@ -320,7 +320,7 @@ export async function parseMarkdown(
 
     isFirstImage = false;
     contentImages.push({
-      placeholder: `[[IMAGE_PLACEHOLDER_${i + 1}]]`,
+      placeholder: `XIMGPH_${i + 1}`,
       localPath,
       originalPath: img.src,
       blockIndex: img.blockIndex,
@@ -331,7 +331,7 @@ export async function parseMarkdown(
   let finalHtml = html;
   if (coverPlaceholder) {
     // Remove the placeholder and its containing <p> tag
-    finalHtml = finalHtml.replace(new RegExp(`<p>${coverPlaceholder.replace(/[[\]]/g, '\\$&')}</p>\\n?`, 'g'), '');
+    finalHtml = finalHtml.replace(new RegExp(`<p>${coverPlaceholder}</p>\\n?`, 'g'), '');
   }
 
   // Resolve cover image path
