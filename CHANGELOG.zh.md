@@ -2,6 +2,11 @@
 
 [English](./CHANGELOG.md) | 中文
 
+## 1.25.1 - 2026-01-28
+
+### 新功能
+- `baoyu-markdown-to-html`：新增中文内容预检查，建议在转换前使用 `baoyu-format-markdown` 格式化以修复加粗标点问题。
+
 ## 1.25.0 - 2026-01-28
 
 ### 新功能

@@ -2,6 +2,11 @@
 
 English | [中文](./CHANGELOG.zh.md)
 
+## 1.25.1 - 2026-01-28
+
+### Features
+- `baoyu-markdown-to-html`: add pre-check step for CJK content to suggest formatting with `baoyu-format-markdown` before conversion.
+
 ## 1.25.0 - 2026-01-28
 
 ### Features
