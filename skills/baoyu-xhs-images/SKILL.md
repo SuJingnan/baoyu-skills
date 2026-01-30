@@ -1,6 +1,6 @@
 ---
 name: baoyu-xhs-images
-description: Generates Xiaohongshu (Little Red Book) infographic series with 9 visual styles and 6 layouts. Breaks content into 1-10 cartoon-style images optimized for XHS engagement. Use when user mentions "小红书图片", "XHS images", "RedNote infographics", "小红书种草", or wants social media infographics for Chinese platforms.
+description: Generates Xiaohongshu (Little Red Book) infographic series with 11 visual styles and 8 layouts. Breaks content into 1-10 cartoon-style images optimized for XHS engagement. Use when user mentions "小红书图片", "XHS images", "RedNote infographics", "小红书种草", or wants social media infographics for Chinese platforms.
 ---
 
 # Xiaohongshu Infographic Series Generator
@@ -42,8 +42,8 @@ Break down complex content into eye-catching infographic series for Xiaohongshu 
 
 | Dimension | Controls | Options |
 |-----------|----------|---------|
-| **Style** | Visual aesthetics: colors, lines, decorations | cute, fresh, warm, bold, minimal, retro, pop, notion, chalkboard |
-| **Layout** | Information structure: density, arrangement | sparse, balanced, dense, list, comparison, flow |
+| **Style** | Visual aesthetics: colors, lines, decorations | cute, fresh, warm, bold, minimal, retro, pop, notion, chalkboard, notebook, study-notes |
+| **Layout** | Information structure: density, arrangement | sparse, balanced, dense, list, comparison, flow, mindmap, quadrant |
 
 Style × Layout can be freely combined. Example: `--style notion --layout dense` creates an intellectual-looking knowledge card with high information density.
 
@@ -60,6 +60,8 @@ Style × Layout can be freely combined. Example: `--style notion --layout dense`
 | `pop` | Vibrant, energetic, eye-catching |
 | `notion` | Minimalist hand-drawn line art, intellectual |
 | `chalkboard` | Colorful chalk on black board, educational |
+| `notebook` | Hand-drawn infographic style, watercolor rendering + Morandi palette |
+| `study-notes` | Realistic handwritten photo style, blue pen + red annotations + yellow highlighter |
 
 Detailed style definitions: `references/presets/<style>.md`
 
@@ -73,6 +75,8 @@ Detailed style definitions: `references/presets/<style>.md`
 | `list` | Enumeration and ranking format (4-7 items) |
 | `comparison` | Side-by-side contrast layout |
 | `flow` | Process and timeline layout (3-6 steps) |
+| `mindmap` | Center radial mind map layout (4-8 branches) |
+| `quadrant` | Four-quadrant / circular section layout |
 
 Detailed layout definitions: `references/elements/canvas.md`
 
@@ -89,6 +93,8 @@ Detailed layout definitions: `references/elements/canvas.md`
 | Fun, exciting, wow, amazing | `pop` | sparse/list |
 | Knowledge, concept, productivity, SaaS | `notion` | dense/list |
 | Education, tutorial, learning, teaching, classroom | `chalkboard` | balanced/dense |
+| Notes, hand-drawn, infographic, study, mindmap, Morandi | `notebook` | mindmap/balanced/dense |
+| Notes, handwritten, study guide, knowledge, realistic, photo | `study-notes` | dense/list/mindmap |
 
 ## Outline Strategies
 
@@ -417,17 +423,19 @@ Files:
 
 **Style × Layout Matrix** (✓✓ = highly recommended, ✓ = works well):
 
-| | sparse | balanced | dense | list | comparison | flow |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| cute | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓ | ✓ |
-| fresh | ✓✓ | ✓✓ | ✓ | ✓ | ✓ | ✓✓ |
-| warm | ✓✓ | ✓✓ | ✓ | ✓ | ✓✓ | ✓ |
-| bold | ✓✓ | ✓ | ✓ | ✓✓ | ✓✓ | ✓ |
-| minimal | ✓✓ | ✓✓ | ✓✓ | ✓ | ✓ | ✓ |
-| retro | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓ | ✓ |
-| pop | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓✓ | ✓ |
-| notion | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ |
-| chalkboard | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓ | ✓✓ |
+| | sparse | balanced | dense | list | comparison | flow | mindmap | quadrant |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| cute | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓ | ✓ | ✓ | ✓ |
+| fresh | ✓✓ | ✓✓ | ✓ | ✓ | ✓ | ✓✓ | ✓ | ✓ |
+| warm | ✓✓ | ✓✓ | ✓ | ✓ | ✓✓ | ✓ | ✓ | ✓ |
+| bold | ✓✓ | ✓ | ✓ | ✓✓ | ✓✓ | ✓ | ✓ | ✓✓ |
+| minimal | ✓✓ | ✓✓ | ✓✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| retro | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓ | ✓ | ✓ | ✓ |
+| pop | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓✓ | ✓ | ✓ | ✓ |
+| notion | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ |
+| chalkboard | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓✓ | ✓ |
+| notebook | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ |
+| study-notes | ✗ | ✓ | ✓✓ | ✓✓ | ✓ | ✓ | ✓✓ | ✓ |
 
 ## References
 

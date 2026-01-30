@@ -51,6 +51,8 @@ Avoid placing critical content in these areas:
 | list | Vertical enumeration | 4-7 | Rankings, checklists, step guides |
 | comparison | Left vs Right | 2 sections | Before/after, pros/cons |
 | flow | Connected nodes | 3-6 steps | Processes, timelines, workflows |
+| mindmap | Center radial | 4-8 branches | Concept maps, brainstorming, topic overview |
+| quadrant | 4-section grid | 4 sections | SWOT analysis, priority matrix, classification |
 
 ## Layout by Position
 
@@ -106,3 +108,15 @@ For multi-element compositions:
 - Directional flow (top→bottom or left→right)
 - Connected nodes with arrows
 - Clear progression indicators
+
+### Mindmap Layout
+- Central topic node
+- Radial branches outward
+- Hierarchical sub-branches
+- Organic curved connections
+
+### Quadrant Layout
+- 4-section grid (2×2)
+- Clear axis labels
+- Each quadrant with distinct content
+- Optional circular variant for cycles
