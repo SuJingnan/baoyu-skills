@@ -1,6 +1,6 @@
 ---
 name: baoyu-xhs-images
-description: Generates Xiaohongshu (Little Red Book) infographic series with 11 visual styles and 8 layouts. Breaks content into 1-10 cartoon-style images optimized for XHS engagement. Use when user mentions "小红书图片", "XHS images", "RedNote infographics", "小红书种草", or wants social media infographics for Chinese platforms.
+description: Generates Xiaohongshu (Little Red Book) infographic series with 10 visual styles and 8 layouts. Breaks content into 1-10 cartoon-style images optimized for XHS engagement. Use when user mentions "小红书图片", "XHS images", "RedNote infographics", "小红书种草", or wants social media infographics for Chinese platforms.
 ---
 
 # Xiaohongshu Infographic Series Generator
@@ -42,7 +42,7 @@ Break down complex content into eye-catching infographic series for Xiaohongshu 
 
 | Dimension | Controls | Options |
 |-----------|----------|---------|
-| **Style** | Visual aesthetics: colors, lines, decorations | cute, fresh, warm, bold, minimal, retro, pop, notion, chalkboard, notebook, study-notes |
+| **Style** | Visual aesthetics: colors, lines, decorations | cute, fresh, warm, bold, minimal, retro, pop, notion, chalkboard, study-notes |
 | **Layout** | Information structure: density, arrangement | sparse, balanced, dense, list, comparison, flow, mindmap, quadrant |
 
 Style × Layout can be freely combined. Example: `--style notion --layout dense` creates an intellectual-looking knowledge card with high information density.
@@ -60,7 +60,6 @@ Style × Layout can be freely combined. Example: `--style notion --layout dense`
 | `pop` | Vibrant, energetic, eye-catching |
 | `notion` | Minimalist hand-drawn line art, intellectual |
 | `chalkboard` | Colorful chalk on black board, educational |
-| `notebook` | Hand-drawn infographic style, watercolor rendering + Morandi palette |
 | `study-notes` | Realistic handwritten photo style, blue pen + red annotations + yellow highlighter |
 
 Detailed style definitions: `references/presets/<style>.md`
@@ -93,7 +92,6 @@ Detailed layout definitions: `references/elements/canvas.md`
 | Fun, exciting, wow, amazing | `pop` | sparse/list |
 | Knowledge, concept, productivity, SaaS | `notion` | dense/list |
 | Education, tutorial, learning, teaching, classroom | `chalkboard` | balanced/dense |
-| Notes, hand-drawn, infographic, study, mindmap, Morandi | `notebook` | mindmap/balanced/dense |
 | Notes, handwritten, study guide, knowledge, realistic, photo | `study-notes` | dense/list/mindmap |
 
 ## Outline Strategies
@@ -233,6 +231,7 @@ Read source content, save it if needed, and perform deep analysis.
 1. **Save source content** (if not already a file):
    - If user provides a file path: use as-is
    - If user pastes content: save to `source.md` in target directory
+   - **Backup rule**: If `source.md` exists, rename to `source-backup-YYYYMMDD-HHMMSS.md`
 2. Read source content
 3. **Deep analysis** following `references/workflows/analysis-framework.md`:
    - Content type classification (种草/干货/测评/教程/避坑...)
@@ -359,7 +358,9 @@ With confirmed outline + style + layout:
 
 **For each image (cover + content + ending)**:
 1. Save prompt to `prompts/NN-{type}-[slug].md` (in user's preferred language)
+   - **Backup rule**: If prompt file exists, rename to `prompts/NN-{type}-[slug]-backup-YYYYMMDD-HHMMSS.md`
 2. Generate image using confirmed style and layout
+   - **Backup rule**: If image file exists, rename to `NN-{type}-[slug]-backup-YYYYMMDD-HHMMSS.png`
 3. Report progress after each generation
 
 **Watermark Application** (if enabled in preferences):
@@ -434,7 +435,6 @@ Files:
 | pop | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓✓ | ✓ | ✓ | ✓ |
 | notion | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ |
 | chalkboard | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓✓ | ✓ |
-| notebook | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ |
 | study-notes | ✗ | ✓ | ✓✓ | ✓✓ | ✓ | ✓ | ✓✓ | ✓ |
 
 ## References
