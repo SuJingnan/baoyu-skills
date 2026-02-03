@@ -315,6 +315,71 @@ async function pressDeleteKey(session: ChromeSession): Promise<void> {
   await session.cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Backspace', code: 'Backspace', windowsVirtualKeyCode: 8 }, { sessionId: session.sessionId });
 }
 
+async function removeExtraEmptyLineAfterImage(session: ChromeSession): Promise<boolean> {
+  const removed = await evaluate<boolean>(session, `
+    (function() {
+      const editor = document.querySelector('.ProseMirror');
+      if (!editor) return false;
+
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return false;
+
+      let node = sel.anchorNode;
+      if (!node) return false;
+      let element = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+      if (!element || !editor.contains(element)) return false;
+
+      const isEmptyParagraph = (el) => {
+        if (!el || el.tagName !== 'P') return false;
+        const text = (el.textContent || '').trim();
+        if (text.length > 0) return false;
+        return el.querySelectorAll('img, figure, video, iframe').length === 0;
+      };
+
+      const hasImage = (el) => {
+        if (!el) return false;
+        return !!el.querySelector('img, figure img, picture img');
+      };
+
+      const placeCursorAfter = (el) => {
+        if (!el) return;
+        const range = document.createRange();
+        range.setStartAfter(el);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      };
+
+      // Case 1: caret is inside an empty paragraph right after an image block.
+      const emptyPara = element.closest('p');
+      if (emptyPara && editor.contains(emptyPara) && isEmptyParagraph(emptyPara)) {
+        const prev = emptyPara.previousElementSibling;
+        if (prev && hasImage(prev)) {
+          emptyPara.remove();
+          placeCursorAfter(prev);
+          return true;
+        }
+      }
+
+      // Case 2: caret is on the image block itself; remove the next empty paragraph.
+      const imageBlock = element.closest('figure, p');
+      if (imageBlock && editor.contains(imageBlock) && hasImage(imageBlock)) {
+        const next = imageBlock.nextElementSibling;
+        if (next && isEmptyParagraph(next)) {
+          next.remove();
+          placeCursorAfter(imageBlock);
+          return true;
+        }
+      }
+
+      return false;
+    })()
+  `);
+
+  if (removed) console.log('[wechat] Removed extra empty line after image.');
+  return removed;
+}
+
 export async function postArticle(options: ArticleOptions): Promise<void> {
   const { title, content, htmlFile, markdownFile, theme, author, summary, images = [], submit = false, profileDir, cdpPort } = options;
   let { contentImages = [] } = options;
@@ -454,11 +519,6 @@ export async function postArticle(options: ArticleOptions): Promise<void> {
       await evaluate(session, `document.querySelector('#author').value = ${JSON.stringify(effectiveAuthor)}; document.querySelector('#author').dispatchEvent(new Event('input', { bubbles: true }));`);
     }
 
-    if (effectiveSummary) {
-      console.log(`[wechat] Filling summary: ${effectiveSummary}`);
-      await evaluate(session, `document.querySelector('#js_description').value = ${JSON.stringify(effectiveSummary)}; document.querySelector('#js_description').dispatchEvent(new Event('input', { bubbles: true }));`);
-    }
-
     await sleep(500);
 
     if (effectiveTitle) {
@@ -467,15 +527,6 @@ export async function postArticle(options: ArticleOptions): Promise<void> {
         console.log('[wechat] Title verified OK.');
       } else {
         console.warn(`[wechat] Title verification failed. Expected: "${effectiveTitle}", got: "${actualTitle}"`);
-      }
-    }
-
-    if (effectiveSummary) {
-      const actualSummary = await evaluate<string>(session, `document.querySelector('#js_description')?.value || ''`);
-      if (actualSummary === effectiveSummary) {
-        console.log('[wechat] Summary verified OK.');
-      } else {
-        console.warn(`[wechat] Summary verification failed. Expected: "${effectiveSummary}", got: "${actualSummary}"`);
       }
     }
 
@@ -534,6 +585,7 @@ export async function postArticle(options: ArticleOptions): Promise<void> {
           console.log('[wechat] Pasting image...');
           await pasteFromClipboardInEditor(session);
           await sleep(3000);
+          await removeExtraEmptyLineAfterImage(session);
         }
         console.log('[wechat] All images inserted.');
       }
@@ -545,6 +597,7 @@ export async function postArticle(options: ArticleOptions): Promise<void> {
           await sleep(500);
           await pasteInEditor(session);
           await sleep(2000);
+          await removeExtraEmptyLineAfterImage(session);
         }
       }
 
@@ -564,6 +617,30 @@ export async function postArticle(options: ArticleOptions): Promise<void> {
         console.log('[wechat] Body content verified OK.');
       } else {
         console.warn('[wechat] Body content verification failed: editor appears empty after typing.');
+      }
+    }
+
+    if (effectiveSummary) {
+      console.log(`[wechat] Filling summary (after content paste): ${effectiveSummary}`);
+      await evaluate(session, `
+        (function() {
+          const el = document.querySelector('#js_description');
+          if (!el) return;
+          el.focus();
+          el.select();
+          el.value = ${JSON.stringify(effectiveSummary)};
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+          el.dispatchEvent(new Event('blur', { bubbles: true }));
+        })()
+      `);
+      await sleep(500);
+
+      const actualSummary = await evaluate<string>(session, `document.querySelector('#js_description')?.value || ''`);
+      if (actualSummary === effectiveSummary) {
+        console.log('[wechat] Summary verified OK.');
+      } else {
+        console.warn(`[wechat] Summary verification failed. Expected: "${effectiveSummary}", got: "${actualSummary}"`);
       }
     }
 
