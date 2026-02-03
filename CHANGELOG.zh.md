@@ -2,6 +2,11 @@
 
 [English](./CHANGELOG.md) | 中文
 
+## 1.28.3 - 2026-02-03
+
+### 修复
+- `baoyu-post-to-wechat`：修复占位符匹配问题（`WECHATIMGPH_1` 错误匹配 `WECHATIMGPH_10`）。
+
 ## 1.28.2 - 2026-02-03
 
 ### 修复

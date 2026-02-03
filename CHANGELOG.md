@@ -2,6 +2,11 @@
 
 English | [中文](./CHANGELOG.zh.md)
 
+## 1.28.3 - 2026-02-03
+
+### Fixes
+- `baoyu-post-to-wechat`: fix placeholder matching issue where `WECHATIMGPH_1` incorrectly matched `WECHATIMGPH_10`.
+
 ## 1.28.2 - 2026-02-03
 
 ### Fixes
