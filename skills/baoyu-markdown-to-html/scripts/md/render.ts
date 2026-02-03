@@ -708,14 +708,28 @@ function normalizeThemeCss(css: string): string {
   return stripOutputScope(css);
 }
 
-function buildHtmlDocument(title: string, css: string, html: string): string {
-  return [
+interface HtmlDocumentMeta {
+  title: string;
+  author?: string;
+  description?: string;
+}
+
+function buildHtmlDocument(meta: HtmlDocumentMeta, css: string, html: string): string {
+  const lines = [
     "<!doctype html>",
     "<html>",
     "<head>",
     '  <meta charset="utf-8" />',
     '  <meta name="viewport" content="width=device-width, initial-scale=1" />',
-    `  <title>${title}</title>`,
+    `  <title>${meta.title}</title>`,
+  ];
+  if (meta.author) {
+    lines.push(`  <meta name="author" content="${meta.author}" />`);
+  }
+  if (meta.description) {
+    lines.push(`  <meta name="description" content="${meta.description}" />`);
+  }
+  lines.push(
     `  <style>${css}</style>`,
     "</head>",
     "<body>",
@@ -723,8 +737,9 @@ function buildHtmlDocument(title: string, css: string, html: string): string {
     html,
     "  </div>",
     "</body>",
-    "</html>",
-  ].join("\n");
+    "</html>"
+  );
+  return lines.join("\n");
 }
 
 async function inlineCss(html: string): Promise<string> {
@@ -814,6 +829,7 @@ async function main(): Promise<void> {
   const markdown = fs.readFileSync(inputPath, "utf-8");
 
   const renderer = initRenderer({});
+  const { yamlData } = renderer.parseFrontMatterAndContent(markdown);
   const { html: baseHtml, readingTime: readingTimeResult } = renderMarkdown(
     markdown,
     renderer
@@ -823,8 +839,23 @@ async function main(): Promise<void> {
     content = removeFirstHeading(content);
   }
 
-  const title = path.basename(outputPath, ".html");
-  const html = buildHtmlDocument(title, css, content);
+  const stripQuotes = (s?: string): string | undefined => {
+    if (!s) return s;
+    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+      return s.slice(1, -1);
+    }
+    if ((s.startsWith('\u201c') && s.endsWith('\u201d')) || (s.startsWith('\u2018') && s.endsWith('\u2019'))) {
+      return s.slice(1, -1);
+    }
+    return s;
+  };
+
+  const meta: HtmlDocumentMeta = {
+    title: stripQuotes(yamlData.title) || path.basename(outputPath, ".html"),
+    author: stripQuotes(yamlData.author),
+    description: stripQuotes(yamlData.description) || stripQuotes(yamlData.summary),
+  };
+  const html = buildHtmlDocument(meta, css, content);
   const inlinedHtml = normalizeInlineCss(await inlineCss(html));
   const finalHtml = modifyHtmlStructure(inlinedHtml);
 

@@ -126,7 +126,18 @@ export async function convertMarkdown(markdownPath: string, options?: { title?: 
 
   const { frontmatter, body } = parseFrontmatter(content);
 
-  let title = options?.title ?? frontmatter.title ?? '';
+  const stripQuotes = (s?: string): string => {
+    if (!s) return '';
+    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+      return s.slice(1, -1);
+    }
+    if ((s.startsWith('\u201c') && s.endsWith('\u201d')) || (s.startsWith('\u2018') && s.endsWith('\u2019'))) {
+      return s.slice(1, -1);
+    }
+    return s;
+  };
+
+  let title = options?.title ?? stripQuotes(frontmatter.title) ?? '';
   if (!title) {
     const lines = body.split('\n');
     for (const line of lines) {
@@ -138,8 +149,8 @@ export async function convertMarkdown(markdownPath: string, options?: { title?: 
     }
   }
   if (!title) title = path.basename(markdownPath, path.extname(markdownPath));
-  const author = frontmatter.author || '';
-  let summary = frontmatter.description || frontmatter.summary || '';
+  const author = stripQuotes(frontmatter.author);
+  let summary = stripQuotes(frontmatter.description) || stripQuotes(frontmatter.summary);
 
   if (!summary) {
     const lines = body.split('\n');
