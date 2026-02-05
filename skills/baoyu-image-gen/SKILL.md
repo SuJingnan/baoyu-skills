@@ -41,7 +41,9 @@ test -f "$HOME/.baoyu-skills/baoyu-image-gen/EXTEND.md" && echo "user"
 │ Not found │ Use defaults                                                              │
 └───────────┴───────────────────────────────────────────────────────────────────────────┘
 
-**EXTEND.md Supports**: Default provider | Default quality | Default aspect ratio
+**EXTEND.md Supports**: Default provider | Default quality | Default aspect ratio | Default image size | Default models
+
+Schema: `references/config/preferences-schema.md`
 
 ## Usage
 
@@ -99,7 +101,7 @@ npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "一只可爱的猫" --image ou
 | `GOOGLE_BASE_URL` | Custom Google endpoint |
 | `DASHSCOPE_BASE_URL` | Custom DashScope endpoint |
 
-**Load Priority**: CLI args > env vars > `<cwd>/.baoyu-skills/.env` > `~/.baoyu-skills/.env`
+**Load Priority**: CLI args > EXTEND.md > env vars > `<cwd>/.baoyu-skills/.env` > `~/.baoyu-skills/.env`
 
 ## Provider Selection
 
