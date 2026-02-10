@@ -2,6 +2,15 @@
 
 English | [中文](./CHANGELOG.zh.md)
 
+## 1.31.1 - 2026-02-10
+
+### Features
+- `baoyu-post-to-wechat`: adapt to new WeChat UI — rename 图文 to 贴图; add ProseMirror editor support with old editor fallback; add fallback file input selector; add upload progress monitoring; improve save button detection with toast verification.
+
+### Fixes
+- `baoyu-post-to-wechat`: truncate digest > 120 chars at punctuation boundary; fix cover image relative path resolution.
+- `baoyu-post-to-x`: fix Chrome launch on macOS via `open -na`; fix cover image relative path resolution.
+
 ## 1.31.0 - 2026-02-07
 
 ### Features
