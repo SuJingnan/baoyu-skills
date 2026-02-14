@@ -368,10 +368,21 @@ Display the selected style's default elements from preset, then ask:
 
 With confirmed outline + style + layout:
 
+**Visual Consistency — Reference Image Chain**:
+To ensure character/style consistency across all images in a series:
+1. **Generate image 1 (cover) FIRST** — without `--ref`
+2. **Use image 1 as `--ref` for ALL remaining images** (2, 3, ..., N)
+   - This anchors the character design, color rendering, and illustration style
+   - Command pattern: `--ref <path-to-image-01.png>` added to every subsequent generation
+
+This is critical for styles that use recurring characters, mascots, or illustration elements. Image 1 becomes the visual anchor for the entire series.
+
 **For each image (cover + content + ending)**:
 1. Save prompt to `prompts/NN-{type}-[slug].md` (in user's preferred language)
    - **Backup rule**: If prompt file exists, rename to `prompts/NN-{type}-[slug]-backup-YYYYMMDD-HHMMSS.md`
-2. Generate image using confirmed style and layout
+2. Generate image:
+   - **Image 1**: Generate without `--ref` (this establishes the visual anchor)
+   - **Images 2+**: Generate with `--ref <image-01-path>` for consistency
    - **Backup rule**: If image file exists, rename to `NN-{type}-[slug]-backup-YYYYMMDD-HHMMSS.png`
 3. Report progress after each generation
 
@@ -391,7 +402,7 @@ Reference: `references/config/watermark-guide.md`
 If image generation skill supports `--sessionId`:
 1. Generate unique session ID: `xhs-{topic-slug}-{timestamp}`
 2. Use same session ID for all images
-3. Ensures visual consistency across generated images
+3. Combined with reference image chain, ensures maximum visual consistency
 
 ### Step 6: Completion Report
 
