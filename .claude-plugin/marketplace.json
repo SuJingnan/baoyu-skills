@@ -22,7 +22,8 @@
         "./skills/baoyu-cover-image",
         "./skills/baoyu-slide-deck",
         "./skills/baoyu-comic",
-        "./skills/baoyu-infographic"
+        "./skills/baoyu-infographic",
+        "./skills/baoyu-video"
       ]
     },
     {
@@ -32,7 +33,8 @@
       "strict": false,
       "skills": [
         "./skills/baoyu-danger-gemini-web",
-        "./skills/baoyu-image-gen"
+        "./skills/baoyu-image-gen",
+        "./skills/baoyu-tts"
       ]
     },
     {
@@ -45,7 +47,8 @@
         "./skills/baoyu-compress-image",
         "./skills/baoyu-url-to-markdown",
         "./skills/baoyu-format-markdown",
-        "./skills/baoyu-markdown-to-html"
+        "./skills/baoyu-markdown-to-html",
+        "./skills/baoyu-narration"
       ]
     }
   ]

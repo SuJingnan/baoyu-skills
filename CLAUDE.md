@@ -19,14 +19,17 @@ skills/
 │   ├── baoyu-article-illustrator/ # Smart illustration placement
 │   ├── baoyu-comic/               # Knowledge comics (Logicomix/Ohmsha style)
 │   ├── baoyu-post-to-x/           # X/Twitter posting automation
-│   └── baoyu-post-to-wechat/      # WeChat Official Account posting
+│   ├── baoyu-post-to-wechat/      # WeChat Official Account posting
+│   └── baoyu-video/               # Image-to-video with narration + Ken Burns
 │
 ├── [ai-generation-skills]     # AI-powered generation backends
-│   └── baoyu-danger-gemini-web/   # Gemini API wrapper (text + image gen)
+│   ├── baoyu-danger-gemini-web/   # Gemini API wrapper (text + image gen)
+│   └── baoyu-tts/                 # Text-to-speech (OpenAI/Google/Azure)
 │
 └── [utility-skills]           # Utility tools for content processing
     ├── baoyu-danger-x-to-markdown/ # X/Twitter content to markdown
-    └── baoyu-compress-image/      # Image compression
+    ├── baoyu-compress-image/      # Image compression
+    └── baoyu-narration/           # Narration script generation
 ```
 
 **Plugin Categories**:
