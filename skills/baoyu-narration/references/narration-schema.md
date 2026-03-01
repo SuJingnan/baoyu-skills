@@ -19,6 +19,7 @@ slides:
         focus: "top-left"
         duration_hint: 2.8
     ken_burns: "zoom-in"              # Ken Burns effect for this slide
+    transition: "circleopen"          # (Optional) Per-slide transition override
 ```
 
 ## Field Reference
@@ -33,6 +34,7 @@ slides:
 | `slides[].sentences[].focus` | string | yes | Focus region code (see focus-regions.md) |
 | `slides[].sentences[].duration_hint` | float | yes | Estimated speaking duration in seconds |
 | `slides[].ken_burns` | string | yes | Ken Burns effect type |
+| `slides[].transition` | string | no | Per-slide transition override (see transitions.md) |
 
 ## Ken Burns Values
 
@@ -44,6 +46,27 @@ slides:
 | `pan-right` | Slow pan from left to right |
 | `pan-up` | Slow pan from bottom to top |
 | `pan-down` | Slow pan from top to bottom |
+| `zoom-in-pan-right` | Zoom in while panning right |
+| `zoom-in-pan-down` | Zoom in while panning down |
+| `zoom-out-pan-left` | Zoom out while panning left |
+| `zoom-out-pan-up` | Zoom out while panning up |
+| `drift` | Gentle floating motion with breathing feel |
+| `none` | Static frame, no animation |
+
+## Transition Values (Optional)
+
+| Value | Description |
+|-------|-------------|
+| `fade` | Cross-fade |
+| `dissolve` | Dissolve blend |
+| `none` | Hard cut |
+| `wipeleft` / `wiperight` / `wipeup` / `wipedown` | Directional wipe |
+| `slideleft` / `slideright` / `slideup` / `slidedown` | Directional slide push |
+| `circleopen` / `circleclose` | Circle expand/shrink |
+| `radial` | Radial sweep |
+| `fadeblack` / `fadewhite` | Fade through black/white |
+| `pixelize` | Pixelate transition |
+| `zoomin` | Zoom-in transition |
 
 ## Duration Hint Guidelines
 
@@ -69,6 +92,7 @@ slides:
         focus: "subtitle"
         duration_hint: 2.8
     ken_burns: "zoom-in"
+    transition: "circleopen"
   - slide: 2
     image: 02-slide-key-trends.png
     sentences:

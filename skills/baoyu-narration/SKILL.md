@@ -40,12 +40,13 @@ The skill auto-detects the source skill type from directory structure:
 
 | Priority | Source | Role |
 |----------|--------|------|
-| 1 (highest) | `prompts/*.md` | Exact visual elements and positions per image |
+| **0 (highest)** | **`narration-brief.md`** | **User-provided narration guidance: full text, key points, or style directives** |
+| 1 | `prompts/*.md` | Exact visual elements and positions per image |
 | 2 | `outline.md` | Narrative structure and logical flow |
 | 3 | `source-*.md` | Original content details |
 | 4 (lowest) | Images (visual) | Verify actual rendering |
 
-**Key Principle**: Narration follows what the image shows (from prompts), not the original article. If prompts simplified 5 points to 3, narrate only 3.
+**Key Principle**: If `narration-brief.md` exists, it takes highest priority. When it provides full text per slide, use that text directly (only add focus and duration_hint). When it provides key points or style directives, generate narration following those guidelines. Otherwise, narration follows what the image shows (from prompts), not the original article.
 
 ## Workflow
 
@@ -66,6 +67,14 @@ Narration Progress:
 ### Step 2: Read Information Sources
 
 Read in priority order:
+
+0. **narration-brief.md** (if exists): User-provided narration guidance
+   - Check: `test -f <input-dir>/narration-brief.md`
+   - Three usage modes (auto-detected from content):
+     - **Full text**: Contains complete narration per slide → use directly, add focus/duration_hint
+     - **Key points**: Contains bullet points or keywords per slide → generate text following these points
+     - **Style directives**: Contains tone/style/length constraints → apply as generation guidelines
+   - See `references/narration-brief-format.md` for format details
 
 1. **prompts/*.md**: For each image, read its corresponding prompt file
    - Extract visual elements and their positions
@@ -109,6 +118,19 @@ For each image (in order):
 | Top-to-bottom flow (lists) | `pan-down` |
 | Detail/close-up content | `zoom-in` |
 | Landscape/wide content | `pan-left` or `pan-right` |
+| Content with directional flow + depth | `zoom-in-pan-right` / `zoom-in-pan-down` / `zoom-out-pan-left` / `zoom-out-pan-up` |
+| Ambient/mood slides | `drift` |
+| Static diagrams | `none` |
+
+6. **(Optional) Choose per-slide transition** if the slide needs a specific transition effect:
+
+| Content Transition | Recommended Transition |
+|-------------------|----------------------|
+| Zoom-in reveal | `circleopen` or `zoomin` |
+| Directional flow right | `wiperight` or `slideright` |
+| Directional flow down | `wipedown` or `slidedown` |
+| Scene change | `fadeblack` or `fadewhite` |
+| Default (omit field) | Uses global `--transition` setting |
 
 ### Step 4: Output narration.yaml
 
@@ -165,3 +187,4 @@ Full schema: `references/narration-schema.md`
 |------|---------|
 | `references/narration-schema.md` | YAML output schema |
 | `references/focus-regions.md` | Focus region codes and derivation rules |
+| `references/narration-brief-format.md` | narration-brief.md format and examples |

@@ -38,11 +38,12 @@ Transform image sequences into narrated videos with Ken Burns animation, synchro
 | `--voice <name>` | TTS voice name |
 | `--speed <float>` | Speaking speed 0.5-2.0 (default: 1.0) |
 | `--lang <code>` | Narration language |
-| `--ken-burns <mode>` | Ken Burns: zoom-in / zoom-out / pan-left / pan-right / auto (default: auto) |
+| `--aspect auto\|16:9\|9:16\|3:4\|4:3` | Output aspect ratio (default: auto — detects from first image) |
+| `--ken-burns <mode>` | Ken Burns: zoom-in / zoom-out / pan-left / pan-right / pan-up / pan-down / zoom-in-pan-right / zoom-in-pan-down / zoom-out-pan-left / zoom-out-pan-up / drift / none / auto (default: auto) |
 | `--subtitle` / `--no-subtitle` | Include subtitles (default: yes) |
 | `--resolution <res>` | Output: 720p / 1080p / 4k (default: 1080p) |
 | `--fps <n>` | Frame rate (default: 30) |
-| `--transition <type>` | Transition: fade / dissolve / none (default: fade) |
+| `--transition <type>` | Transition: fade / dissolve / none / auto / random / wipeleft / wiperight / wipeup / wipedown / slideleft / slideright / slideup / slidedown / circleopen / circleclose / radial / fadeblack / fadewhite / pixelize / zoomin (default: fade) |
 | `--bgm <path>` | Background music file (optional) |
 | `--narration-only` | Generate narration script only |
 | `--audio-only` | Generate narration + audio, skip video |
@@ -176,11 +177,26 @@ question: "Proceed with narration?"
 options:
   - label: "Yes, generate audio (Recommended)"
     description: "Start TTS generation"
-  - label: "Edit narration first"
-    description: "I'll modify narration.yaml before continuing"
+  - label: "Edit narration"
+    description: "Interactively review and edit narration text"
   - label: "Regenerate narration"
     description: "Create new narration with different approach"
 ```
+
+**Interactive Edit Flow** (when user selects "Edit narration"):
+
+1. For each slide, display current narration text:
+   ```
+   Slide N (image: NN-xxx.png):
+     1. "Current sentence one."
+     2. "Current sentence two."
+   ```
+2. Use AskUserQuestion per slide:
+   - "Keep as is" → skip
+   - "Edit this slide" → user provides replacement text or modification instructions
+3. Apply changes: if user provides exact replacement text, use it directly; if user provides instructions (e.g., "more concise", "add humor"), regenerate that slide's narration accordingly
+4. Update `narration.yaml` with changes
+5. Display updated summary table and re-confirm
 
 ### Step 6: Generate Audio
 

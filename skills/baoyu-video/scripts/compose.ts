@@ -13,6 +13,7 @@ interface Slide {
   image: string;
   sentences: Sentence[];
   ken_burns: string;
+  transition?: string;
 }
 
 interface Narration {
@@ -30,6 +31,7 @@ interface ComposeOptions {
   inputDir: string;
   output: string;
   resolution: string;
+  aspect: string;
   fps: number;
   transition: string;
   transitionDuration: number;
@@ -57,6 +59,8 @@ function parseNarrationYaml(content: string): Narration {
       current.image = trimmed.split(":").slice(1).join(":").trim().replace(/['"]/g, "");
     } else if (current && trimmed.startsWith("ken_burns:")) {
       current.ken_burns = trimmed.split(":").slice(1).join(":").trim().replace(/['"]/g, "");
+    } else if (current && trimmed.startsWith("transition:")) {
+      current.transition = trimmed.split(":").slice(1).join(":").trim().replace(/['"]/g, "");
     } else if (current && trimmed.startsWith("- text:")) {
       if (currentSentence?.text) current.sentences.push(currentSentence as Sentence);
       currentSentence = {
@@ -79,10 +83,37 @@ function parseNarrationYaml(content: string): Narration {
   return { slides };
 }
 
-function getResolution(res: string): { w: number; h: number } {
-  if (res === "4k") return { w: 3840, h: 2160 };
-  if (res === "720p") return { w: 1280, h: 720 };
-  return { w: 1920, h: 1080 };
+function getResolution(res: string, portrait = false): { w: number; h: number } {
+  let r: { w: number; h: number };
+  if (res === "4k") r = { w: 3840, h: 2160 };
+  else if (res === "720p") r = { w: 1280, h: 720 };
+  else r = { w: 1920, h: 1080 };
+  return portrait ? { w: r.h, h: r.w } : r;
+}
+
+function getImageDimensions(imagePath: string): { w: number; h: number } | null {
+  try {
+    const out = execSync(`ffprobe -v quiet -show_entries stream=width,height -of csv=p=0 "${imagePath}"`, { encoding: "utf8", timeout: 10000 }).trim();
+    const [w, h] = out.split(",").map(Number);
+    if (w && h) return { w, h };
+  } catch {}
+  return null;
+}
+
+function buildScaleFilter(imgW: number, imgH: number, targetW: number, targetH: number): string {
+  const imgRatio = imgW / imgH;
+  const targetRatio = targetW / targetH;
+  const tw = targetW * 2;
+  const th = targetH * 2;
+
+  if (Math.abs(imgRatio - targetRatio) < 0.01) {
+    return `scale=${tw}:${th}:flags=lanczos`;
+  }
+
+  if (imgRatio > targetRatio) {
+    return `scale=${tw}:-2:flags=lanczos,pad=${tw}:${th}:(ow-iw)/2:(oh-ih)/2:black`;
+  }
+  return `scale=-2:${th}:flags=lanczos,pad=${tw}:${th}:(ow-iw)/2:(oh-ih)/2:black`;
 }
 
 function getFocusPoint(focus: string): { x: number; y: number } {
@@ -123,16 +154,68 @@ function buildZoompanFilter(
     : focusStart;
 
   const kb = slide.ken_burns;
+  const t = `(1-cos(PI*on/${totalFrames}))/2`;
+
   let zoomStart = 1.0;
   let zoomEnd = 1.0;
+  let panXDir = 0;
+  let panYDir = 0;
+  let isDrift = false;
+  let isNone = false;
 
   if (kb === "zoom-in") { zoomStart = 1.0; zoomEnd = 1.15; }
   else if (kb === "zoom-out") { zoomStart = 1.15; zoomEnd = 1.0; }
-  else { zoomStart = 1.05; zoomEnd = 1.05; }
+  else if (kb === "zoom-in-pan-right") { zoomStart = 1.0; zoomEnd = 1.12; panXDir = 1; }
+  else if (kb === "zoom-in-pan-down") { zoomStart = 1.0; zoomEnd = 1.12; panYDir = 1; }
+  else if (kb === "zoom-out-pan-left") { zoomStart = 1.12; zoomEnd = 1.0; panXDir = -1; }
+  else if (kb === "zoom-out-pan-up") { zoomStart = 1.12; zoomEnd = 1.0; panYDir = -1; }
+  else if (kb === "drift") { zoomStart = 1.0; zoomEnd = 1.05; isDrift = true; }
+  else if (kb === "none") { isNone = true; }
+  else if (kb.startsWith("pan-")) {
+    zoomStart = 1.05; zoomEnd = 1.05;
+    if (kb === "pan-right") panXDir = 1;
+    else if (kb === "pan-left") panXDir = -1;
+    else if (kb === "pan-down") panYDir = 1;
+    else if (kb === "pan-up") panYDir = -1;
+  } else {
+    zoomStart = 1.05; zoomEnd = 1.05;
+  }
 
-  const zExpr = `${zoomStart}+(${zoomEnd - zoomStart})*on/${totalFrames}`;
-  const xExpr = `(iw-iw/zoom)/2+((iw/zoom)*${focusStart.x}-(iw/zoom)/2)*(1-on/${totalFrames})+((iw/zoom)*${focusEnd.x}-(iw/zoom)/2)*(on/${totalFrames})`;
-  const yExpr = `(ih-ih/zoom)/2+((ih/zoom)*${focusStart.y}-(ih/zoom)/2)*(1-on/${totalFrames})+((ih/zoom)*${focusEnd.y}-(ih/zoom)/2)*(on/${totalFrames})`;
+  let zExpr: string;
+  let xExpr: string;
+  let yExpr: string;
+
+  if (isNone) {
+    zExpr = "1";
+    xExpr = "(iw-iw/zoom)/2";
+    yExpr = "(ih-ih/zoom)/2";
+  } else if (isDrift) {
+    const driftAmp = 0.02;
+    zExpr = `${zoomStart}+(${zoomEnd - zoomStart})*${t}`;
+    xExpr = `(iw-iw/zoom)/2+(iw/zoom)*${driftAmp}*sin(2*PI*on/${totalFrames})`;
+    yExpr = `(ih-ih/zoom)/2+(ih/zoom)*${driftAmp}*cos(2*PI*on/${totalFrames})`;
+  } else if (panXDir !== 0 || panYDir !== 0) {
+    const panRange = 0.12;
+    zExpr = `${zoomStart}+(${zoomEnd - zoomStart})*${t}`;
+    if (panXDir !== 0) {
+      const xStart = panXDir > 0 ? focusStart.x - panRange / 2 : focusStart.x + panRange / 2;
+      const xEnd = panXDir > 0 ? focusEnd.x + panRange / 2 : focusEnd.x - panRange / 2;
+      xExpr = `(iw-iw/zoom)/2+((iw/zoom)*${xStart.toFixed(3)}-(iw/zoom)/2)*(1-${t})+((iw/zoom)*${xEnd.toFixed(3)}-(iw/zoom)/2)*${t}`;
+    } else {
+      xExpr = `(iw-iw/zoom)/2+((iw/zoom)*${focusStart.x}-(iw/zoom)/2)*(1-${t})+((iw/zoom)*${focusEnd.x}-(iw/zoom)/2)*${t}`;
+    }
+    if (panYDir !== 0) {
+      const yStart = panYDir > 0 ? focusStart.y - panRange / 2 : focusStart.y + panRange / 2;
+      const yEnd = panYDir > 0 ? focusEnd.y + panRange / 2 : focusEnd.y - panRange / 2;
+      yExpr = `(ih-ih/zoom)/2+((ih/zoom)*${yStart.toFixed(3)}-(ih/zoom)/2)*(1-${t})+((ih/zoom)*${yEnd.toFixed(3)}-(ih/zoom)/2)*${t}`;
+    } else {
+      yExpr = `(ih-ih/zoom)/2+((ih/zoom)*${focusStart.y}-(ih/zoom)/2)*(1-${t})+((ih/zoom)*${focusEnd.y}-(ih/zoom)/2)*${t}`;
+    }
+  } else {
+    zExpr = `${zoomStart}+(${zoomEnd - zoomStart})*${t}`;
+    xExpr = `(iw-iw/zoom)/2+((iw/zoom)*${focusStart.x}-(iw/zoom)/2)*(1-${t})+((iw/zoom)*${focusEnd.x}-(iw/zoom)/2)*${t}`;
+    yExpr = `(ih-ih/zoom)/2+((ih/zoom)*${focusStart.y}-(ih/zoom)/2)*(1-${t})+((ih/zoom)*${focusEnd.y}-(ih/zoom)/2)*${t}`;
+  }
 
   const filter = `zoompan=z='${zExpr}':x='${xExpr}':y='${yExpr}':d=${totalFrames}:s=${resolution.w}x${resolution.h}:fps=${fps}`;
 
@@ -160,14 +243,57 @@ async function fileExists(p: string): Promise<boolean> {
   try { await access(p); return true; } catch { return false; }
 }
 
+const TRANSITIONS = [
+  "fade", "dissolve", "wipeleft", "wiperight", "wipeup", "wipedown",
+  "slideleft", "slideright", "slideup", "slidedown",
+  "circleopen", "circleclose", "radial",
+  "fadeblack", "fadewhite", "pixelize", "zoomin",
+] as const;
+
+const AUTO_TRANSITION_MAP: Record<string, string[]> = {
+  "zoom-in": ["circleopen", "zoomin"],
+  "zoom-out": ["circleclose", "fade"],
+  "pan-right": ["wiperight", "slideright"],
+  "pan-left": ["wipeleft", "slideleft"],
+  "pan-down": ["wipedown", "slidedown"],
+  "pan-up": ["wipeup", "slideup"],
+  "zoom-in-pan-right": ["wiperight", "zoomin"],
+  "zoom-in-pan-down": ["wipedown", "zoomin"],
+  "zoom-out-pan-left": ["wipeleft", "circleclose"],
+  "zoom-out-pan-up": ["wipeup", "circleclose"],
+  "drift": ["dissolve", "fade"],
+  "none": ["fade", "dissolve"],
+};
+
+function pickAutoTransition(kb: string, index: number): string {
+  const candidates = AUTO_TRANSITION_MAP[kb] ?? ["fade"];
+  return candidates[index % candidates.length]!;
+}
+
+function pickRandomTransition(): string {
+  return TRANSITIONS[Math.floor(Math.random() * TRANSITIONS.length)]!;
+}
+
+function resolveTransition(globalTransition: string, slide: Slide, nextSlide: Slide | undefined, index: number): string {
+  if (slide.transition && slide.transition !== "auto" && slide.transition !== "random") return slide.transition;
+  if (globalTransition === "none") return "none";
+  if (globalTransition === "auto") return pickAutoTransition(slide.ken_burns, index);
+  if (globalTransition === "random") return pickRandomTransition();
+  return globalTransition;
+}
+
 function printUsage(): void {
   console.log(`Usage: bun compose.ts <input-dir> [options]
 
 Options:
   --output <path>          Output video path (default: <input-dir>/<slug>.mp4)
   --resolution 720p|1080p|4k  Output resolution (default: 1080p)
+  --aspect auto|16:9|9:16|3:4|4:3  Output aspect ratio (default: auto)
   --fps <n>                Frame rate (default: 30)
-  --transition fade|dissolve|none  Transition type (default: fade)
+  --transition <type>      Transition: fade|dissolve|none|auto|random|wipeleft|wiperight|
+                           wipeup|wipedown|slideleft|slideright|slideup|slidedown|
+                           circleopen|circleclose|radial|fadeblack|fadewhite|pixelize|zoomin
+                           (default: fade)
   --transition-duration <s>  Transition duration in seconds (default: 0.5)
   --subtitle <path>        Subtitle file (.srt)
   --bgm <path>             Background music file
@@ -181,6 +307,7 @@ function parseArgs(argv: string[]): ComposeOptions | null {
     inputDir: "",
     output: "",
     resolution: "1080p",
+    aspect: "auto",
     fps: 30,
     transition: "fade",
     transitionDuration: 0.5,
@@ -195,6 +322,7 @@ function parseArgs(argv: string[]): ComposeOptions | null {
     if (a === "--json") { opts.json = true; continue; }
     if (a === "--output" && argv[i + 1]) { opts.output = argv[++i]!; continue; }
     if (a === "--resolution" && argv[i + 1]) { opts.resolution = argv[++i]!; continue; }
+    if (a === "--aspect" && argv[i + 1]) { opts.aspect = argv[++i]!; continue; }
     if (a === "--fps" && argv[i + 1]) { opts.fps = parseInt(argv[++i]!, 10); continue; }
     if (a === "--transition" && argv[i + 1]) { opts.transition = argv[++i]!; continue; }
     if (a === "--transition-duration" && argv[i + 1]) { opts.transitionDuration = parseFloat(argv[++i]!); continue; }
@@ -226,7 +354,19 @@ async function main(): Promise<void> {
   const narration = parseNarrationYaml(await readFile(narrationPath, "utf8"));
   const audioDir = path.join(opts.inputDir, "audio");
   const audioMetas = await loadAudioMeta(audioDir);
-  const resolution = getResolution(opts.resolution);
+
+  let portrait = false;
+  if (opts.aspect === "auto") {
+    const firstImage = narration.slides[0]?.image;
+    if (firstImage) {
+      const dims = getImageDimensions(path.join(opts.inputDir, firstImage));
+      if (dims) portrait = dims.h > dims.w;
+    }
+  } else if (opts.aspect === "9:16" || opts.aspect === "3:4") {
+    portrait = true;
+  }
+
+  const resolution = getResolution(opts.resolution, portrait);
 
   const durationsMap = new Map<string, number>();
   for (const m of audioMetas) {
@@ -238,6 +378,7 @@ async function main(): Promise<void> {
 
   const slideClips: string[] = [];
   const slideDurations: number[] = [];
+  const composedSlides: Slide[] = [];
 
   for (const slide of narration.slides) {
     const imagePath = path.join(opts.inputDir, slide.image);
@@ -246,16 +387,22 @@ async function main(): Promise<void> {
       continue;
     }
 
+    const imgDims = getImageDimensions(imagePath);
+    const scaleFilter = imgDims
+      ? buildScaleFilter(imgDims.w, imgDims.h, resolution.w, resolution.h)
+      : `scale=${resolution.w * 2}:${resolution.h * 2}:flags=lanczos`;
+
     const { filter, duration } = buildZoompanFilter(slide, durationsMap, resolution, opts.fps);
     const clipPath = path.join(tempDir, `slide-${String(slide.slide).padStart(2, "0")}.mp4`);
 
-    const cmd = `ffmpeg -y -loop 1 -i "${imagePath}" -vf "scale=${resolution.w * 2}:${resolution.h * 2}:flags=lanczos,${filter},format=yuv420p" -t ${duration} -c:v libx264 -preset medium -crf 18 -r ${opts.fps} -an "${clipPath}"`;
+    const cmd = `ffmpeg -y -loop 1 -i "${imagePath}" -vf "${scaleFilter},${filter},format=yuv420p" -t ${duration} -c:v libx264 -preset medium -crf 18 -r ${opts.fps} -an "${clipPath}"`;
 
     console.log(`Composing slide ${slide.slide}/${narration.slides.length}...`);
     execSync(cmd, { stdio: "pipe", timeout: 120000 });
 
     slideClips.push(clipPath);
     slideDurations.push(duration);
+    composedSlides.push(slide);
   }
 
   if (slideClips.length === 0) throw new Error("No slide clips generated");
@@ -265,26 +412,30 @@ async function main(): Promise<void> {
   await writeFile(concatListPath, concatContent, "utf8");
 
   let videoCmd: string;
+  const allNone = opts.transition === "none" && composedSlides.every((s) => !s.transition || s.transition === "none");
 
-  if (opts.transition === "none" || slideClips.length === 1) {
-    videoCmd = `ffmpeg -y -f concat -safe 0 -i "${concatListPath}" -c:v libx264 -preset medium -crf 18`;
+  if (allNone || slideClips.length === 1) {
+    videoCmd = slideClips.length === 1
+      ? `ffmpeg -y -i "${slideClips[0]}" -c:v libx264 -preset medium -crf 18`
+      : `ffmpeg -y -f concat -safe 0 -i "${concatListPath}" -c:v libx264 -preset medium -crf 18`;
   } else {
     const inputs = slideClips.map((c) => `-i "${c}"`).join(" ");
     const filterParts: string[] = [];
     let lastLabel = "[0:v]";
 
     for (let i = 1; i < slideClips.length; i++) {
+      const tr = resolveTransition(opts.transition, composedSlides[i - 1]!, composedSlides[i], i - 1);
       const offset = slideDurations.slice(0, i).reduce((a, b) => a + b, 0) - opts.transitionDuration * i;
       const outLabel = i < slideClips.length - 1 ? `[v${i}]` : "[vout]";
-      filterParts.push(`${lastLabel}[${i}:v]xfade=transition=${opts.transition}:duration=${opts.transitionDuration}:offset=${Math.max(0, offset).toFixed(2)}${outLabel}`);
+      if (tr === "none") {
+        filterParts.push(`${lastLabel}[${i}:v]xfade=transition=fade:duration=0.01:offset=${Math.max(0, offset + opts.transitionDuration - 0.01).toFixed(2)}${outLabel}`);
+      } else {
+        filterParts.push(`${lastLabel}[${i}:v]xfade=transition=${tr}:duration=${opts.transitionDuration}:offset=${Math.max(0, offset).toFixed(2)}${outLabel}`);
+      }
       lastLabel = outLabel;
     }
 
-    if (slideClips.length === 1) {
-      videoCmd = `ffmpeg -y -i "${slideClips[0]}" -c:v libx264 -preset medium -crf 18`;
-    } else {
-      videoCmd = `ffmpeg -y ${inputs} -filter_complex "${filterParts.join(";")}" -map "[vout]" -c:v libx264 -preset medium -crf 18`;
-    }
+    videoCmd = `ffmpeg -y ${inputs} -filter_complex "${filterParts.join(";")}" -map "[vout]" -c:v libx264 -preset medium -crf 18`;
   }
 
   const videoOnlyPath = path.join(tempDir, "video-only.mp4");
