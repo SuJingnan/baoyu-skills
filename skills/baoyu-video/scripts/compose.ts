@@ -282,6 +282,44 @@ function resolveTransition(globalTransition: string, slide: Slide, nextSlide: Sl
   return globalTransition;
 }
 
+async function generatePost(narration: Narration, postPath: string, duration: number): Promise<void> {
+  const allTexts = narration.slides.flatMap((s) => s.sentences.map((t) => t.text));
+  const title = allTexts[0] ?? "";
+  const body = allTexts.slice(1, -1).join("");
+  const cta = allTexts[allTexts.length - 1] ?? "";
+  const mins = Math.floor(duration / 60);
+  const secs = Math.round(duration % 60);
+  const dur = mins > 0 ? `${mins}分${secs}秒` : `${secs}秒`;
+
+  const keywords = new Set<string>();
+  const joined = allTexts.join(" ");
+  for (const m of joined.matchAll(/[A-Za-z][A-Za-z0-9]*(?:[-_.][A-Za-z0-9]+)+|[A-Z][a-z]+[A-Z]\w+|[A-Z]{2,}[a-z]+\w*/g)) keywords.add(m[0]);
+  for (const m of joined.matchAll(/(?:^|\s)([A-Z][a-z]{2,}(?:\s[A-Z][a-z]{2,})*)(?=\s|[，。、]|$)/g)) keywords.add(m[1]!);
+  const stopWords = new Set(["The", "And", "For", "From", "With", "That", "This", "But"]);
+  const tags = [...keywords].filter((k) => !stopWords.has(k) && k.length > 1).slice(0, 8).map((k) => `#${k}`);
+  const defaultTags = ["#Skill推荐", "#AI编程", "#效率工具", "#开发者必备"];
+  const allTags = [...new Set([...tags, ...defaultTags])].slice(0, 10);
+
+  const content = `# 标题
+
+${title}
+
+# 简介
+
+${body}
+
+${cta}
+
+⏱️ 时长：${dur} | 📐 ${narration.slides.length} 页
+
+# 话题
+
+${allTags.join(" ")}
+`;
+
+  await writeFile(postPath, content, "utf8");
+}
+
 function printUsage(): void {
   console.log(`Usage: bun compose.ts <input-dir> [options]
 
@@ -560,10 +598,14 @@ async function main(): Promise<void> {
 
   execSync(`rm -rf "${tempDir}"`, { stdio: "pipe" });
 
+  const totalDuration = slideDurations.reduce((a, b) => a + b, 0);
+  const postPath = path.join(path.dirname(opts.output), "post.md");
+  await generatePost(narration, postPath, totalDuration);
+
   if (opts.json) {
-    const totalDuration = slideDurations.reduce((a, b) => a + b, 0);
     console.log(JSON.stringify({
       output: opts.output,
+      post: postPath,
       slides: narration.slides.length,
       duration: Math.round(totalDuration * 100) / 100,
       resolution: `${resolution.w}x${resolution.h}`,
