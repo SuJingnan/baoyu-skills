@@ -407,14 +407,88 @@ async function main(): Promise<void> {
 
   if (slideClips.length === 0) throw new Error("No slide clips generated");
 
+  const numTransitions = slideClips.length > 1 ? slideClips.length - 1 : 0;
+  const allNoneCheck = opts.transition === "none" && composedSlides.every((s) => !s.transition || s.transition === "none");
+  const transitionOverlap = (allNoneCheck || slideClips.length === 1) ? 0 : opts.transitionDuration * numTransitions;
+
+  if (transitionOverlap > 0 && slideClips.length > 1) {
+    const lastIdx = slideClips.length - 1;
+    const lastSlide = composedSlides[lastIdx]!;
+    const lastImagePath = path.join(opts.inputDir, lastSlide.image);
+    const imgDims = getImageDimensions(lastImagePath);
+    const scaleFilter = imgDims
+      ? buildScaleFilter(imgDims.w, imgDims.h, resolution.w, resolution.h)
+      : `scale=${resolution.w * 2}:${resolution.h * 2}:flags=lanczos`;
+    const paddedDuration = slideDurations[lastIdx]! + transitionOverlap;
+    const paddedFrames = Math.ceil(paddedDuration * opts.fps);
+
+    const kb = lastSlide.ken_burns;
+    const t = `(1-cos(PI*on/${paddedFrames}))/2`;
+    let zoomStart = 1.0, zoomEnd = 1.0, panXDir = 0, panYDir = 0, isDrift = false, isNone = false;
+    if (kb === "zoom-in") { zoomStart = 1.0; zoomEnd = 1.15; }
+    else if (kb === "zoom-out") { zoomStart = 1.15; zoomEnd = 1.0; }
+    else if (kb === "zoom-in-pan-right") { zoomStart = 1.0; zoomEnd = 1.12; panXDir = 1; }
+    else if (kb === "zoom-in-pan-down") { zoomStart = 1.0; zoomEnd = 1.12; panYDir = 1; }
+    else if (kb === "zoom-out-pan-left") { zoomStart = 1.12; zoomEnd = 1.0; panXDir = -1; }
+    else if (kb === "zoom-out-pan-up") { zoomStart = 1.12; zoomEnd = 1.0; panYDir = -1; }
+    else if (kb === "drift") { zoomStart = 1.0; zoomEnd = 1.05; isDrift = true; }
+    else if (kb === "none") { isNone = true; }
+    else if (kb.startsWith("pan-")) {
+      zoomStart = 1.05; zoomEnd = 1.05;
+      if (kb === "pan-right") panXDir = 1;
+      else if (kb === "pan-left") panXDir = -1;
+      else if (kb === "pan-down") panYDir = 1;
+      else if (kb === "pan-up") panYDir = -1;
+    } else { zoomStart = 1.05; zoomEnd = 1.05; }
+
+    const focusStart = lastSlide.sentences.length > 0 ? getFocusPoint(lastSlide.sentences[0]!.focus) : { x: 0.5, y: 0.5 };
+    const focusEnd = lastSlide.sentences.length > 1 ? getFocusPoint(lastSlide.sentences[lastSlide.sentences.length - 1]!.focus) : focusStart;
+    let zExpr: string, xExpr: string, yExpr: string;
+    if (isNone) { zExpr = "1"; xExpr = "(iw-iw/zoom)/2"; yExpr = "(ih-ih/zoom)/2"; }
+    else if (isDrift) {
+      zExpr = `${zoomStart}+(${zoomEnd - zoomStart})*${t}`;
+      xExpr = `(iw-iw/zoom)/2+(iw/zoom)*0.02*sin(2*PI*on/${paddedFrames})`;
+      yExpr = `(ih-ih/zoom)/2+(ih/zoom)*0.02*cos(2*PI*on/${paddedFrames})`;
+    } else if (panXDir !== 0 || panYDir !== 0) {
+      const panRange = 0.12;
+      zExpr = `${zoomStart}+(${zoomEnd - zoomStart})*${t}`;
+      if (panXDir !== 0) {
+        const xS = panXDir > 0 ? focusStart.x - panRange / 2 : focusStart.x + panRange / 2;
+        const xE = panXDir > 0 ? focusEnd.x + panRange / 2 : focusEnd.x - panRange / 2;
+        xExpr = `(iw-iw/zoom)/2+((iw/zoom)*${xS.toFixed(3)}-(iw/zoom)/2)*(1-${t})+((iw/zoom)*${xE.toFixed(3)}-(iw/zoom)/2)*${t}`;
+      } else {
+        xExpr = `(iw-iw/zoom)/2+((iw/zoom)*${focusStart.x}-(iw/zoom)/2)*(1-${t})+((iw/zoom)*${focusEnd.x}-(iw/zoom)/2)*${t}`;
+      }
+      if (panYDir !== 0) {
+        const yS = panYDir > 0 ? focusStart.y - panRange / 2 : focusStart.y + panRange / 2;
+        const yE = panYDir > 0 ? focusEnd.y + panRange / 2 : focusEnd.y - panRange / 2;
+        yExpr = `(ih-ih/zoom)/2+((ih/zoom)*${yS.toFixed(3)}-(ih/zoom)/2)*(1-${t})+((ih/zoom)*${yE.toFixed(3)}-(ih/zoom)/2)*${t}`;
+      } else {
+        yExpr = `(ih-ih/zoom)/2+((ih/zoom)*${focusStart.y}-(ih/zoom)/2)*(1-${t})+((ih/zoom)*${focusEnd.y}-(ih/zoom)/2)*${t}`;
+      }
+    } else {
+      zExpr = `${zoomStart}+(${zoomEnd - zoomStart})*${t}`;
+      xExpr = `(iw-iw/zoom)/2+((iw/zoom)*${focusStart.x}-(iw/zoom)/2)*(1-${t})+((iw/zoom)*${focusEnd.x}-(iw/zoom)/2)*${t}`;
+      yExpr = `(ih-ih/zoom)/2+((ih/zoom)*${focusStart.y}-(ih/zoom)/2)*(1-${t})+((ih/zoom)*${focusEnd.y}-(ih/zoom)/2)*${t}`;
+    }
+
+    const paddedFilter = `zoompan=z='${zExpr}':x='${xExpr}':y='${yExpr}':d=${paddedFrames}:s=${resolution.w}x${resolution.h}:fps=${opts.fps}`;
+    const paddedClipPath = path.join(tempDir, `slide-${String(lastSlide.slide).padStart(2, "0")}-padded.mp4`);
+    const padCmd = `ffmpeg -y -loop 1 -i "${lastImagePath}" -vf "${scaleFilter},${paddedFilter},format=yuv420p" -t ${paddedDuration} -c:v libx264 -preset medium -crf 18 -r ${opts.fps} -an "${paddedClipPath}"`;
+    console.log(`Padding last slide ${lastSlide.slide} by ${transitionOverlap.toFixed(2)}s to compensate for transitions...`);
+    execSync(padCmd, { stdio: "pipe", timeout: 120000 });
+
+    slideClips[lastIdx] = paddedClipPath;
+    slideDurations[lastIdx] = paddedDuration;
+  }
+
   const concatListPath = path.join(tempDir, "concat.txt");
   const concatContent = slideClips.map((c) => `file '${c}'`).join("\n");
   await writeFile(concatListPath, concatContent, "utf8");
 
   let videoCmd: string;
-  const allNone = opts.transition === "none" && composedSlides.every((s) => !s.transition || s.transition === "none");
 
-  if (allNone || slideClips.length === 1) {
+  if (allNoneCheck || slideClips.length === 1) {
     videoCmd = slideClips.length === 1
       ? `ffmpeg -y -i "${slideClips[0]}" -c:v libx264 -preset medium -crf 18`
       : `ffmpeg -y -f concat -safe 0 -i "${concatListPath}" -c:v libx264 -preset medium -crf 18`;
