@@ -116,6 +116,14 @@ function buildScaleFilter(imgW: number, imgH: number, targetW: number, targetH: 
   return `scale=-2:${th}:flags=lanczos,pad=${tw}:${th}:(ow-iw)/2:(oh-ih)/2:black`;
 }
 
+function buildScrollScaleFilter(imgW: number, imgH: number, targetW: number, targetH: number): string {
+  const scaledH = Math.round(targetW / imgW * imgH);
+  if (scaledH <= targetH) {
+    return `scale=${targetW}:${targetH}:flags=lanczos`;
+  }
+  return `scale=${targetW}:-2:flags=lanczos`;
+}
+
 function getFocusPoint(focus: string): { x: number; y: number } {
   const map: Record<string, { x: number; y: number }> = {
     "top-left": { x: 0.17, y: 0.17 },
@@ -140,7 +148,7 @@ function buildZoompanFilter(
   durations: Map<string, number>,
   resolution: { w: number; h: number },
   fps: number
-): { filter: string; duration: number } {
+): { filter: string; duration: number; scroll: boolean } {
   let totalDuration = 0;
   for (let i = 0; i < slide.sentences.length; i++) {
     const key = `${slide.slide}-${i}`;
@@ -154,7 +162,7 @@ function buildZoompanFilter(
     : focusStart;
 
   const kb = slide.ken_burns;
-  const t = `(1-cos(PI*on/${totalFrames}))/2`;
+  const t = `(1-cos(3.14159265*on/${totalFrames}))/2`;
 
   let zoomStart = 1.0;
   let zoomEnd = 1.0;
@@ -162,6 +170,7 @@ function buildZoompanFilter(
   let panYDir = 0;
   let isDrift = false;
   let isNone = false;
+  let isScroll = false;
 
   if (kb === "zoom-in") { zoomStart = 1.0; zoomEnd = 1.15; }
   else if (kb === "zoom-out") { zoomStart = 1.15; zoomEnd = 1.0; }
@@ -171,6 +180,7 @@ function buildZoompanFilter(
   else if (kb === "zoom-out-pan-up") { zoomStart = 1.12; zoomEnd = 1.0; panYDir = -1; }
   else if (kb === "drift") { zoomStart = 1.0; zoomEnd = 1.05; isDrift = true; }
   else if (kb === "none") { isNone = true; }
+  else if (kb === "scroll") { isScroll = true; }
   else if (kb.startsWith("pan-")) {
     zoomStart = 1.05; zoomEnd = 1.05;
     if (kb === "pan-right") panXDir = 1;
@@ -184,6 +194,11 @@ function buildZoompanFilter(
   let zExpr: string;
   let xExpr: string;
   let yExpr: string;
+
+  if (isScroll) {
+    const scrollFilter = `crop=${resolution.w}:${resolution.h}:0:'(in_h-${resolution.h})*(1-cos(3.14159265*t/${totalDuration.toFixed(3)}))/2'`;
+    return { filter: scrollFilter, duration: totalDuration, scroll: true };
+  }
 
   if (isNone) {
     zExpr = "1";
@@ -219,7 +234,7 @@ function buildZoompanFilter(
 
   const filter = `zoompan=z='${zExpr}':x='${xExpr}':y='${yExpr}':d=${totalFrames}:s=${resolution.w}x${resolution.h}:fps=${fps}`;
 
-  return { filter, duration: totalDuration };
+  return { filter, duration: totalDuration, scroll: isScroll };
 }
 
 async function loadAudioMeta(audioDir: string): Promise<AudioMeta[]> {
@@ -426,11 +441,10 @@ async function main(): Promise<void> {
     }
 
     const imgDims = getImageDimensions(imagePath);
+    const { filter, duration, scroll } = buildZoompanFilter(slide, durationsMap, resolution, opts.fps);
     const scaleFilter = imgDims
-      ? buildScaleFilter(imgDims.w, imgDims.h, resolution.w, resolution.h)
+      ? (scroll ? buildScrollScaleFilter(imgDims.w, imgDims.h, resolution.w, resolution.h) : buildScaleFilter(imgDims.w, imgDims.h, resolution.w, resolution.h))
       : `scale=${resolution.w * 2}:${resolution.h * 2}:flags=lanczos`;
-
-    const { filter, duration } = buildZoompanFilter(slide, durationsMap, resolution, opts.fps);
     const clipPath = path.join(tempDir, `slide-${String(slide.slide).padStart(2, "0")}.mp4`);
 
     const cmd = `ffmpeg -y -loop 1 -i "${imagePath}" -vf "${scaleFilter},${filter},format=yuv420p" -t ${duration} -c:v libx264 -preset medium -crf 18 -r ${opts.fps} -an "${clipPath}"`;
@@ -461,8 +475,8 @@ async function main(): Promise<void> {
     const paddedFrames = Math.ceil(paddedDuration * opts.fps);
 
     const kb = lastSlide.ken_burns;
-    const t = `(1-cos(PI*on/${paddedFrames}))/2`;
-    let zoomStart = 1.0, zoomEnd = 1.0, panXDir = 0, panYDir = 0, isDrift = false, isNone = false;
+    const t = `(1-cos(3.14159265*on/${paddedFrames}))/2`;
+    let zoomStart = 1.0, zoomEnd = 1.0, panXDir = 0, panYDir = 0, isDrift = false, isNone = false, isScroll = false;
     if (kb === "zoom-in") { zoomStart = 1.0; zoomEnd = 1.15; }
     else if (kb === "zoom-out") { zoomStart = 1.15; zoomEnd = 1.0; }
     else if (kb === "zoom-in-pan-right") { zoomStart = 1.0; zoomEnd = 1.12; panXDir = 1; }
@@ -471,6 +485,7 @@ async function main(): Promise<void> {
     else if (kb === "zoom-out-pan-up") { zoomStart = 1.12; zoomEnd = 1.0; panYDir = -1; }
     else if (kb === "drift") { zoomStart = 1.0; zoomEnd = 1.05; isDrift = true; }
     else if (kb === "none") { isNone = true; }
+    else if (kb === "scroll") { isScroll = true; }
     else if (kb.startsWith("pan-")) {
       zoomStart = 1.05; zoomEnd = 1.05;
       if (kb === "pan-right") panXDir = 1;
@@ -485,8 +500,8 @@ async function main(): Promise<void> {
     if (isNone) { zExpr = "1"; xExpr = "(iw-iw/zoom)/2"; yExpr = "(ih-ih/zoom)/2"; }
     else if (isDrift) {
       zExpr = `${zoomStart}+(${zoomEnd - zoomStart})*${t}`;
-      xExpr = `(iw-iw/zoom)/2+(iw/zoom)*0.02*sin(2*PI*on/${paddedFrames})`;
-      yExpr = `(ih-ih/zoom)/2+(ih/zoom)*0.02*cos(2*PI*on/${paddedFrames})`;
+      xExpr = `(iw-iw/zoom)/2+(iw/zoom)*0.02*sin(2*3.14159265*on/${paddedFrames})`;
+      yExpr = `(ih-ih/zoom)/2+(ih/zoom)*0.02*cos(2*3.14159265*on/${paddedFrames})`;
     } else if (panXDir !== 0 || panYDir !== 0) {
       const panRange = 0.12;
       zExpr = `${zoomStart}+(${zoomEnd - zoomStart})*${t}`;
@@ -510,9 +525,19 @@ async function main(): Promise<void> {
       yExpr = `(ih-ih/zoom)/2+((ih/zoom)*${focusStart.y}-(ih/zoom)/2)*(1-${t})+((ih/zoom)*${focusEnd.y}-(ih/zoom)/2)*${t}`;
     }
 
-    const paddedFilter = `zoompan=z='${zExpr}':x='${xExpr}':y='${yExpr}':d=${paddedFrames}:s=${resolution.w}x${resolution.h}:fps=${opts.fps}`;
+    let paddedVf: string;
+    if (isScroll) {
+      const scrollScale = imgDims
+        ? buildScrollScaleFilter(imgDims.w, imgDims.h, resolution.w, resolution.h)
+        : `scale=${resolution.w}:-2:flags=lanczos`;
+      const scrollCrop = `crop=${resolution.w}:${resolution.h}:0:'(in_h-${resolution.h})*(1-cos(3.14159265*t/${paddedDuration.toFixed(3)}))/2'`;
+      paddedVf = `${scrollScale},${scrollCrop},format=yuv420p`;
+    } else {
+      const paddedZoompan = `zoompan=z='${zExpr}':x='${xExpr}':y='${yExpr}':d=${paddedFrames}:s=${resolution.w}x${resolution.h}:fps=${opts.fps}`;
+      paddedVf = `${scaleFilter},${paddedZoompan},format=yuv420p`;
+    }
     const paddedClipPath = path.join(tempDir, `slide-${String(lastSlide.slide).padStart(2, "0")}-padded.mp4`);
-    const padCmd = `ffmpeg -y -loop 1 -i "${lastImagePath}" -vf "${scaleFilter},${paddedFilter},format=yuv420p" -t ${paddedDuration} -c:v libx264 -preset medium -crf 18 -r ${opts.fps} -an "${paddedClipPath}"`;
+    const padCmd = `ffmpeg -y -loop 1 -i "${lastImagePath}" -vf "${paddedVf}" -t ${paddedDuration} -c:v libx264 -preset medium -crf 18 -r ${opts.fps} -an "${paddedClipPath}"`;
     console.log(`Padding last slide ${lastSlide.slide} by ${transitionOverlap.toFixed(2)}s to compensate for transitions...`);
     execSync(padCmd, { stdio: "pipe", timeout: 120000 });
 
@@ -540,7 +565,7 @@ async function main(): Promise<void> {
       const offset = slideDurations.slice(0, i).reduce((a, b) => a + b, 0) - opts.transitionDuration * i;
       const outLabel = i < slideClips.length - 1 ? `[v${i}]` : "[vout]";
       if (tr === "none") {
-        filterParts.push(`${lastLabel}[${i}:v]xfade=transition=fade:duration=0.01:offset=${Math.max(0, offset + opts.transitionDuration - 0.01).toFixed(2)}${outLabel}`);
+        filterParts.push(`${lastLabel}[${i}:v]xfade=transition=fade:duration=${opts.transitionDuration}:offset=${Math.max(0, offset).toFixed(2)}${outLabel}`);
       } else {
         filterParts.push(`${lastLabel}[${i}:v]xfade=transition=${tr}:duration=${opts.transitionDuration}:offset=${Math.max(0, offset).toFixed(2)}${outLabel}`);
       }

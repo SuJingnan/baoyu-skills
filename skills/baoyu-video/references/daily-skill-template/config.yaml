@@ -1,0 +1,108 @@
+series: "每日一个 Skill"
+style:
+  theme: "notion-doodle"
+  description: "手绘笔记风：米白背景 + 手写粗体 + 荧光笔高亮 + 涂鸦装饰，温暖亲切的手账感"
+  palette:
+    background: "#F5F3EF"
+    text_primary: "#1A1A1A"
+    highlight_blue: "#B8D4E8"
+    highlight_yellow: "#F5E6A3"
+    highlight_pink: "#F5C5C5"
+    highlight_green: "#C5E8C5"
+    muted: "#8C8C8C"
+    accent: "#4A4A4A"
+  rendering: "hand-drawn"
+  mood: "warm-casual"
+  font: "bold hand-written brush style for titles, clean sans-serif for body"
+  decorative_hints:
+    - "Hand-drawn doodle icons (magnifying glass, rocket, lightbulb, arrows, sparkles)"
+    - "Colored marker/highlighter strokes behind key words"
+    - "Decorative quotation marks and brackets"
+    - "Simple line-art sketches, not polished renders"
+    - "Scattered sparkle marks and emphasis dots"
+  aspect_ratio: "3:4"
+  quality: "2k"
+
+video:
+  resolution: "1080p"
+  fps: 30
+  transition_mode: "auto"
+  transition_duration: 0.3
+
+tts:
+  provider: "azure"
+  voice: "zh-CN-YunxiNeural"
+  speed: 1.3
+
+narration:
+  style: "casual"
+  tone: "零废话、每句必须有信息增量、动作导向、5秒内抓住痛点"
+  pace: "极快，避免长难句"
+  opening: "每日一个 Skill，今天分享：{SKILL_NAME}。"
+  closing: "链接就在评论区。关注我，每天推荐一个实用 Skill，下期见。"
+  rules:
+    - "每句必须有信息增量，删掉所有过渡词/感叹词"
+    - "前5秒（第1-2句）必须命中痛点，否则用户滑走"
+    - "每句告诉观众一个事实或一个行动，不说感受"
+    - "禁止：「你知道吗」「其实」「说实话」「不得不说」「老实说」等口水词"
+
+slides:
+  - position: 1
+    role: "封面/主题切入"
+    ken_burns: "none"
+    transition: null
+    fixed_elements:
+      - "背景：米白 #F5F3EF 纯色，带微弱纸张纹理"
+      - "顶部小字：别再自己写 Prompt 了（手写体，带删除线装饰）"
+      - "中间大字：『推荐一个 AI Skill』（粗体手写，关键词带蓝/黄荧光笔高亮）"
+      - "下方：{SKILL_NAME}（大号粗体，带粉色荧光笔高亮）"
+      - "散落涂鸦：放大镜、星星、文档图标"
+      - "底部：topskills.com.cn（等宽体，下划线）"
+
+  - position: 2
+    role: "黄金3秒钩子"
+    ken_burns: "none"
+    transition: "wiperight"
+    fixed_elements:
+      - "米白背景 + 手绘涂鸦装饰"
+      - "大字 hook 文案（粗体手写，关键词荧光笔高亮）"
+      - "简笔画图示说明核心概念"
+
+  - position: 3
+    role: "痛点放大"
+    ken_burns: "none"
+    transition: "wipedown"
+    fixed_elements:
+      - "标题行（粗体手写，带删除线或红色标记）"
+      - "列表项（手绘 X 标记 + 简笔画图标）"
+      - "底部总结句（粉色荧光笔高亮背景）"
+
+  - position: 4
+    role: "硬核演示"
+    ken_burns: "none"
+    transition: "circleopen"
+    fixed_elements:
+      - "手绘风格的代码/命令展示（简笔画终端窗口）"
+      - "能力标签（手绘圆角框 + 荧光笔色填充）"
+      - "箭头和涂鸦连接各元素"
+
+  - position: 5
+    role: "产品页滚动展示"
+    ken_burns: "scroll"
+    transition: "slideright"
+    source: "screenshot-fullpage.png"
+    fixed_elements:
+      - "直接使用 TopSkills 产品全页截图（非 AI 生成）"
+      - "ken_burns: scroll 自动从顶部平滑滚动到底部"
+      - "旁白描述按钮位置和功能，不提框色"
+
+  - position: 6
+    role: "CTA/下载引导"
+    ken_burns: "none"
+    transition: "fadeblack"
+    fixed_elements:
+      - "品牌条：每日一个 Skill（灰色小字）"
+      - "中间大字：源码 + 下载（黄色荧光笔高亮）"
+      - "topskills.com.cn（大号等宽字体，蓝色荧光笔，下划线）"
+      - "手绘下载箭头、文档图标涂鸦"
+      - "底部：关注我 · 每天推荐一个 Skill（三色荧光笔）"
